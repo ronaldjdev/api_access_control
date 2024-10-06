@@ -1,8 +1,9 @@
 from django.http import JsonResponse
+from base.settings import SECRET_KEY
 from employee.models import Employee
 from .models import RegisterAccess
 from .utils.qr_reader import read_qr_image, read_qr_camera
-from .utils.qr_generator import SECRET_KEY
+from .utils.qr_generator import generate_dynamic_qr
 import jwt
 
 def verificar_qr(request):
@@ -83,3 +84,19 @@ def verify_qr_from_camera(request):
         return JsonResponse({'status': 'error', 'message': 'QR expirado'})
     except jwt.InvalidTokenError:
         return JsonResponse({'status': 'error', 'message': 'QR inválido'})
+    
+def generate_qr_from_employee(request):
+    """
+    Endpoint para generar un código QR dinámico para un empleado.
+    """
+    employee_id = request.POST.get('employee_id')
+    
+    # Generar el QR para el empleado
+    qr_filename = generate_dynamic_qr(employee_id)
+    
+    if not qr_filename:
+        return JsonResponse({'status': 'error', 'message': 'Empleado no encontrado'})
+    
+    # Devolver la ruta o URL del QR generado
+    qr_url = f'/media/{qr_filename}'  # Suponiendo que las imágenes están servidas desde /media/
+    return JsonResponse({'status': 'success', 'qr_image_url': qr_url})

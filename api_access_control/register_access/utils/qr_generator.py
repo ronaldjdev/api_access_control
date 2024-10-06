@@ -2,7 +2,8 @@ import pyqrcode
 import jwt
 import datetime
 
-SECRET_KEY = 'your_secret_key'
+from base.settings import SECRET_KEY
+
 
 def generate_dynamic_qr(employee_id):
     timestamp = datetime.datetime.now().isoformat()
