@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from base.settings import SECRET_KEY
 from employee.models import Employee
@@ -6,6 +7,7 @@ from .utils.qr_reader import read_qr_image, read_qr_camera
 from .utils.qr_generator import generate_dynamic_qr
 import jwt
 
+@csrf_exempt
 def verificar_qr(request):
     qr_data = request.POST.get('qr_data')
 
@@ -89,7 +91,21 @@ def generate_qr_from_employee(request):
     """
     Endpoint para generar un código QR dinámico para un empleado.
     """
-    employee_id = request.POST.get('employee_id')
+    token = request.META.get('HTTP_AUTHORIZATION')  # Obtener el token del encabezado
+    print('Token recibido:', token)  # Imprimir el token recibido
+    if not token:
+        return JsonResponse({'status': 'error', 'message': 'Token no proporcionado'}, status=403)
+
+    try:
+        token = token.split()[1]  # Extraer solo el token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])  # Decodificar el token
+        print('Payload: ', payload)  # Imprimir el payload decodificado
+        employee_id = payload['employee_id']  # Extraer el ID del empleado
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
+        print('Error al decodificar el token:', str(e))  # Imprimir el error si hay uno
+        return JsonResponse({'status': 'error', 'message': 'Token inválido'}, status=403)
+
+    print('Employee ID: ', employee_id)
     
     # Generar el QR para el empleado
     qr_filename = generate_dynamic_qr(employee_id)
