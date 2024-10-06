@@ -1,13 +1,71 @@
 from django.http import JsonResponse
-from api_access_control.employee.models import Employee
+from employee.models import Employee
 from .models import RegisterAccess
+from .utils.qr_reader import read_qr_image, read_qr_camera
 from .utils.qr_generator import SECRET_KEY
 import jwt
-import datetime
 
 def verificar_qr(request):
     qr_data = request.POST.get('qr_data')
 
+    try:
+        decoded = jwt.decode(qr_data, SECRET_KEY, algorithms=['HS256'])
+        employee_id = decoded['employee_id']
+        employee = Employee.objects.get(id=employee_id)
+
+        # Determinar si es entrada o salida
+        last_register = RegisterAccess.objects.filter(employee=employee).last()
+        type_access = 'IN' if last_register is None or last_register.type_access == 'OUT' else 'OUT'
+
+        # Registrar el acceso
+        RegisterAccess.objects.create(employee=employee, type_access=type_access, qr_data=qr_data)
+
+        return JsonResponse({'status': 'success', 'type_access': type_access})
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({'status': 'error', 'message': 'QR expirado'})
+    except jwt.InvalidTokenError:
+        return JsonResponse({'status': 'error', 'message': 'QR inválido'})
+
+
+def read_qr_from_image(request):
+    # Suponiendo que recibes una imagen del QR como parte de la solicitud
+    image_path = request.FILES['image'].temporary_file_path()
+    
+    # Leer el QR desde la imagen
+    qr_data = read_qr_image(image_path)
+    if not qr_data:
+        return JsonResponse({'status': 'error', 'message': 'No se encontró un QR válido'})
+
+    # Verificar el QR escaneado
+    try:
+        decoded = jwt.decode(qr_data, SECRET_KEY, algorithms=['HS256'])
+        employee_id = decoded['employee_id']
+        employee = Employee.objects.get(id=employee_id)
+
+        # Determinar si es entrada o salida
+        last_register = RegisterAccess.objects.filter(employee=employee).last()
+        type_access = 'IN' if last_register is None or last_register.type_access == 'OUT' else 'OUT'
+
+        # Registrar el acceso
+        RegisterAccess.objects.create(employee=employee, type_access=type_access, qr_data=qr_data)
+
+        return JsonResponse({'status': 'success', 'type_access': type_access})
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({'status': 'error', 'message': 'QR expirado'})
+    except jwt.InvalidTokenError:
+        return JsonResponse({'status': 'error', 'message': 'QR inválido'})
+
+
+def verify_qr_from_camera(request):
+    """
+    Verifica un código QR escaneado desde la cámara en tiempo real.
+    """
+    qr_data = read_qr_camera()
+    
+    if not qr_data:
+        return JsonResponse({'status': 'error', 'message': 'No se encontró un QR válido'})
+
+    # Verificar el contenido del QR escaneado
     try:
         decoded = jwt.decode(qr_data, SECRET_KEY, algorithms=['HS256'])
         employee_id = decoded['employee_id']

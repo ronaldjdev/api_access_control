@@ -1,5 +1,5 @@
 from django.db import models
-from api_access_control.base.models import ModelBase
+from base.models import ModelBase
 
 
 # Create your models here.
@@ -14,4 +14,5 @@ class Employee(ModelBase):
     class Meta:
         verbose_name = 'Empleado'
         verbose_name_plural = 'Empleados'
+        app_label = 'employee'
     
