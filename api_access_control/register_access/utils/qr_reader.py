@@ -73,7 +73,7 @@ def read_qr_camera():
     """
     Lee un código QR desde la cámara en tiempo real.
     """
-    global qr_data_global
+    qr_data = None
     # Inicializa la captura de video desde la cámara (cámara 0 por defecto)
     cap = cv2.VideoCapture(0)
     # Reducir la resolución del video para mejorar la velocidad de procesamiento
@@ -102,12 +102,18 @@ def read_qr_camera():
 
             # Muestra los datos del QR en la consola
             print("QR Data:", qr_data)
+
+            # Si el usuario presiona la tecla 'q', se sale del bucle
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+            # Cierra todas las ventanas de OpenCV abiertas
+            cv2.destroyAllWindows()
+
+
             # Devuelve los datos del QR y termina la función (sale del bucle)
-            qr_data_global = qr_data
-            # Libera el objeto de captura de video cuando el bucle termina
-            cap.release()
-            return
-            
+            return qr_data
+        
         # Muestra el frame actual en una ventana de OpenCV con el título 'Escaner de QR'
         cv2.imshow('Escaner de QR', frame)
         
@@ -120,5 +126,8 @@ def read_qr_camera():
 
     # Cierra todas las ventanas de OpenCV abiertas
     cv2.destroyAllWindows()
+
+    # Si no se detectó ningún QR, devuelve None
+    return qr_data
 
 

@@ -13,6 +13,9 @@ class Employee(ModelBase):
     address = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.identification} - {self.name} "
+    
     class Meta:
         verbose_name = 'Empleado'
         verbose_name_plural = 'Empleados'
