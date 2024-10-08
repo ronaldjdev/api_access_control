@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('verificar-qr-camara/', verify_qr_from_camera, name='verify_qr_from_camera'),
-    path('generate-qr/', generate_qr_from_employee, name='generate_qr_from_employee'),
+    path('generar-qr/', generate_qr_from_employee, name='generate_qr_from_employee'),
     path('sign-in/', sign_in, name='sign_in'),
 
 ]

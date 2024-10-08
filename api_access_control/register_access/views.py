@@ -1,34 +1,16 @@
+import threading
+import time
+
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from base.settings import SECRET_KEY
-from employee.models import Employee
-from .models import RegisterAccess
-from .utils.qr_reader import read_qr_image, read_qr_camera
-from .utils.qr_generator import generate_dynamic_qr
+
 import jwt
 
-@csrf_exempt
-def verificar_qr(request):
-    qr_data = request.POST.get('qr_data')
-
-    try:
-        decoded = jwt.decode(qr_data, SECRET_KEY, algorithms=['HS256'])
-        employee_id = decoded['employee_id']
-        employee = Employee.objects.get(id=employee_id)
-
-        # Determinar si es entrada o salida
-        last_register = RegisterAccess.objects.filter(employee=employee).last()
-        type_access = 'IN' if last_register is None or last_register.type_access == 'OUT' else 'OUT'
-
-        # Registrar el acceso
-        RegisterAccess.objects.create(employee=employee, type_access=type_access, qr_data=qr_data)
-
-        return JsonResponse({'status': 'success', 'type_access': type_access})
-    except jwt.ExpiredSignatureError:
-        return JsonResponse({'status': 'error', 'message': 'QR expirado'})
-    except jwt.InvalidTokenError:
-        return JsonResponse({'status': 'error', 'message': 'QR inválido'})
-
+from .models import RegisterAccess
+from base.settings import SECRET_KEY
+from employee.models import Employee
+from .utils.qr_reader import read_qr_image, read_qr_camera, qr_data_global
+from .utils.qr_generator import generate_dynamic_qr
 
 def read_qr_from_image(request):
     # Suponiendo que recibes una imagen del QR como parte de la solicitud
@@ -58,13 +40,16 @@ def read_qr_from_image(request):
     except jwt.InvalidTokenError:
         return JsonResponse({'status': 'error', 'message': 'QR inválido'})
 
-
+@csrf_exempt
 def verify_qr_from_camera(request):
     """
     Verifica un código QR escaneado desde la cámara en tiempo real.
     """
-    qr_data = read_qr_camera()
-    
+    threading.Thread(target=read_qr_camera, daemon=True).start()
+    time.sleep(5)
+    # Obtener el contenido del QR escaneado
+    qr_data = qr_data_global
+    print("QR DATA: ",qr_data)
     if not qr_data:
         return JsonResponse({'status': 'error', 'message': 'No se encontró un QR válido'})
 

@@ -10,7 +10,7 @@ class RegisterAccessResourse(resources.ModelResource):
 
 class RegisterAccesssAdmin(ImportExportModelAdmin,admin.ModelAdmin):
 
-    list_display    = ("employee",)
+    list_display    = ("employee__name",)
     search_fields   = ["employee__name"]
     resources_class = RegisterAccessResourse
 
