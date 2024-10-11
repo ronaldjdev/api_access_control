@@ -6,15 +6,15 @@ from base.models import ModelBase
 # Create your models here.
 
 class Employee(ModelBase):
-    identification = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=255)
-    email = models.EmailField(max_length=255, unique=True)
-    phone = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
+    identification = models.CharField('Identificación',max_length=50, unique=True)
+    name = models.CharField('Nombre',max_length=255)
+    email = models.EmailField('Email',max_length=255, unique=True)
+    phone = models.CharField('Teléfono',max_length=255)
+    address = models.CharField('Dirección',max_length=255)
+    password = models.CharField('Contraseña',max_length=255)
 
     def __str__(self):
-        return f"{self.identification} - {self.name} "
+        return f"{self.name} "
     
     class Meta:
         verbose_name = 'Empleado'

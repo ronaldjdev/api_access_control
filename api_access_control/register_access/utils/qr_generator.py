@@ -27,7 +27,7 @@ def generate_dynamic_qr(employee_id):
     payload = {
         'employee_id': employee_id,
         'timestamp': timestamp,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5)  # QR válido por 5 minutos
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)  # QR válido por 5 minutos
     }
     
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')

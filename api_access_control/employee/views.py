@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import jwt
+from jwt import encode
 import datetime
 
 from base.settings import SECRET_KEY
@@ -38,7 +38,7 @@ def sign_in(request):
                     'name': employee.name,
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
                 }
-                token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+                token = encode(payload, SECRET_KEY, algorithm='HS256')
                 return JsonResponse({'token': token})
 
             return JsonResponse({'error': 'Credenciales inválidas'}, status=400)

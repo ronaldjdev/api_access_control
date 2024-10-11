@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from employee.models import Employee
+from django.contrib.auth.models import User
 
 class Command(BaseCommand):
-    help = 'Seed the database with test employees'
+    help = 'Seed the database with test employees and a superuser'
 
     def handle(self, *args, **kwargs):
         # Borra empleados previos de prueba si es necesario
@@ -26,5 +27,16 @@ class Command(BaseCommand):
             )
             empleado.set_password(empleado_data['password'])  # Encriptar la contraseña
             empleado.save()
+
+        # Crear superusuario para pruebas
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser(
+                username='admin',
+                email='admin@example.com',
+                password='1111'
+            )
+            self.stdout.write(self.style.SUCCESS('Superusuario de prueba creado correctamente.'))
+        else:
+            self.stdout.write(self.style.WARNING('El superusuario ya existe.'))
 
         self.stdout.write(self.style.SUCCESS('Empleados de prueba creados correctamente.'))

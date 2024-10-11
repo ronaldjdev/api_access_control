@@ -4,22 +4,29 @@ from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 from .models import RegisterAccess
 
+class RegisterAccessResource(resources.ModelResource):
+    employee_name = Field(attribute='employee', column_name='employee_name', readonly=True)
 
-class RegisterAccessResourse(resources.ModelResource):
-    employee_name = Field(attribute='employee', column_name='Nombre del Empleado', readonly=True)
     class Meta:
         model = RegisterAccess
-        formats = ["xls", "xlsx", "csv", "tsv", "json"]
         exclude = ('employee',)
-    
-    def dehydrate_employee_name(self, register_access):
-        return str(register_access.employee)
 
-class RegisterAccesssAdmin(ImportExportModelAdmin,admin.ModelAdmin):
+    # def dehydrate_employee_name(self, register_access):
+    #     return str(register_access.employee)
 
-    list_display    = ("employee__identification","employee__name", "type_access", "employee_entry", "employee_exit",)
-    search_fields   = ["employee__name", "employee__identification", "type_access", "employee_entry", "employee_exit",]
-    resources_class = RegisterAccessResourse
+class RegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
-# Register your models here.
-admin.site.register(RegisterAccess  , RegisterAccesssAdmin  ),
+    list_display    = ("get_employee_identification", "get_employee_name", "type_access", "employee_entry", "employee_exit","hours_worked", "extra_hours")
+    search_fields   = ["employee__name", "employee__identification", "type_access", "employee_entry", "employee_exit"]
+    resource_class  = RegisterAccessResource
+
+    def get_employee_identification(self, obj):
+        return obj.employee.identification
+    get_employee_identification.short_description = 'Identificación del Empleado'
+
+    def get_employee_name(self, obj):
+        return obj.employee.name
+    get_employee_name.short_description = 'Nombre del Empleado'
+
+# Registrar el modelo en admin
+admin.site.register(RegisterAccess, RegisterAccessAdmin)
