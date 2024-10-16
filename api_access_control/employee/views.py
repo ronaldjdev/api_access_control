@@ -16,7 +16,7 @@ def sign_in(request):
     """
     Autenticar un empleado y devolver un token JWT para acceder a los endpoints protegidos.
 
-    El endpoint espera un JSON con los campos "identification" y "password". Si el empleado existe y
+    El endpoint espera un JSON con los campos "id_card" y "password". Si el empleado existe y
     la contraseña es correcta, se devuelve un token JWT en el campo "token". En caso contrario, se
     devuelve un JSON con el campo "error" y un mensaje de error.
 
@@ -28,11 +28,11 @@ def sign_in(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            identification = data.get('identification')
+            id_card = data.get('id_card')
             password = data.get('password')
 
             # Buscar el empleado por identificación
-            employee = Employee.objects.filter(identification=identification).first()
+            employee = Employee.objects.filter(id_card=id_card).first()
             if employee and employee.check_password(password):
                 # Generar el token JWT
                 payload = {

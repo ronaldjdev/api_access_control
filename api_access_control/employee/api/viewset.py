@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ..models import Employee
-from ..serializers import EmployeeSerializer
+from .serializers import EmployeeSerializer
 
 
 class EmployeeViewSet(ModelViewSet):

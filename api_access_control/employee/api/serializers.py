@@ -1,10 +1,21 @@
 from rest_framework import serializers
-from .models import Employee
+from ..models import Employee
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ['identification', 'name', 'email', 'phone', 'address', 'password']
+        fields = [
+            'id', 
+            'id_card', 
+            'type_id_card',
+            'name', 
+            'email', 
+            'image',
+            'phone', 
+            'address', 
+            'marital_status',
+            'gender'
+            ]
 
     # Sobrescribe para manejar la contraseña
     def create(self, validated_data):
