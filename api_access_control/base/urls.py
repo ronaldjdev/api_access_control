@@ -21,6 +21,7 @@ from django.urls import path, include
 
 from register_access.views import verify_qr_from_camera, generate_qr_from_employee
 from employee.views import sign_in
+from employee.api.router import router as employee_router
 
 
 urlpatterns = [
@@ -29,6 +30,7 @@ urlpatterns = [
     path('verificar-qr-camara/', verify_qr_from_camera, name='verify_qr_from_camera'),
     path('generar-qr/', generate_qr_from_employee, name='generate_qr_from_employee'),
     path('sign-in/', sign_in, name='sign_in'),
+    path('api/', include(employee_router.urls)),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,9 +1,9 @@
-import os
 from pathlib import Path
+from decouple import config
 from .base import * # noqa: F403
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / config('DB_NAME', default='db.sqlite3'),
     }
 }
 
@@ -35,4 +35,4 @@ STATIC_ROOT = (BASE_DIR,'/staticfiles/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-IMPORT_EXPORT_USE_TRANSACTIONS = True
+

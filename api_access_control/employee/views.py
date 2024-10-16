@@ -1,12 +1,14 @@
+import datetime
+import json
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
 from jwt import encode
-import datetime
 
 from base.settings import SECRET_KEY
-
 from .models import Employee
+
+
 
 
 @csrf_exempt
@@ -47,3 +49,6 @@ def sign_in(request):
             return JsonResponse({'error': 'Formato JSON inválido'}, status=400)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+
