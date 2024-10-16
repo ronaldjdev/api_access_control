@@ -21,7 +21,7 @@ class RegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class  = RegisterAccessResource
 
     def get_employee_identification(self, obj):
-        return obj.employee.identification
+        return obj.employee.id_card
     get_employee_identification.short_description = 'Identificación del Empleado'
 
     def get_employee_name(self, obj):
