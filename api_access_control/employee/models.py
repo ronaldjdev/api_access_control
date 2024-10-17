@@ -19,7 +19,7 @@ class Employee(ModelBase):
 
     
     def __str__(self):
-        return f"{self.name} "
+        return f"{self.type_id_card} "
     
     class Meta:
         verbose_name = 'Empleado'
