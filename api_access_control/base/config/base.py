@@ -34,6 +34,7 @@ BASE_APPS = [
 LOCAL_APPS = [
     'employee',
     'register_access',
+    'user',
 ]
 
 THIRD_PARTY_APPS = [
@@ -112,7 +113,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-AUTH_USER_MODEL = 'employee.Employee'
+AUTH_USER_MODEL = 'user.User'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
