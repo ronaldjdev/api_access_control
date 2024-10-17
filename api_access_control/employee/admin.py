@@ -8,7 +8,7 @@ class EmployeeResource(resources.ModelResource):
         model = Employee
 
 class EmployeesAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ('id_card', 'name','is_active')
+    list_display = ('id_card', 'name','is_staff','is_active')
     search_fields = ['name']
     # resource_class = EmployeeResource  # Nota: `resource_class`, no `resources_class`
 

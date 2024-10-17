@@ -37,6 +37,7 @@ LOCAL_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "corsheaders",
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -46,6 +47,7 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -99,6 +101,8 @@ REST_FRAMEWORK = {
     # Define las clases de autenticación
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ],
 
     # Define las clases de permisos
@@ -120,6 +124,7 @@ SIMPLE_JWT = {
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+     'employee.backends.CustomUserBackend',
 )
 
 # Internationalization
