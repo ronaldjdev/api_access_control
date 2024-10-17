@@ -125,7 +125,7 @@ SIMPLE_JWT = {
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-     'employee.backends.CustomUserBackend',
+     'user.backends.CustomUserBackend',
 )
 
 # Internationalization
