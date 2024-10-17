@@ -14,10 +14,12 @@ numpy==2.1.2
 odfpy==1.4.1
 opencv-python==4.10.0.84
 openpyxl==3.1.5
+pillow==11.0.0
 pycparser==2.22
 PyJWT==2.9.0
 pypng==0.20220715.0
 PyQRCode==1.2.1
+python-decouple==3.8
 PyYAML==6.0.2
 pyzbar==0.1.9
 sqlparse==0.5.1

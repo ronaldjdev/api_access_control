@@ -23,3 +23,15 @@ MARITAL_STATUS = [
     ('C', 'Casado'),
     ('UL', 'Union Libre')
 ]
+
+RH = [
+    ('NN', 'No registra'),
+    ('O+', 'O Positivo'),
+    ('O-', 'O Negativo'),
+    ('A+', 'A Positivo'),
+    ('A-', 'A Negativo'),
+    ('B+', 'B Positivo'),
+    ('B-', 'B Negativo'),
+    ('AB+', 'AB Positivo'),
+    ('AB-', 'AB Negativo'),
+]

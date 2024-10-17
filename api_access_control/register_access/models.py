@@ -12,7 +12,7 @@ class RegisterAccess(ModelBase):
     employee_exit = models.DateTimeField('Salida',null=True, blank=True)
     hours_worked = models.DecimalField('Horas trabajadas', max_digits=5, decimal_places=2, default=0.00)
     extra_hours = models.DecimalField('Horas extras', max_digits=5, decimal_places=2, default=0.00)
-    qr_data = models.CharField(max_length=255)
+    qr_data = models.CharField('Codigo QR',max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Registro de acceso'

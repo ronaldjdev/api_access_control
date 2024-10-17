@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from register_access.views import verify_qr_from_camera, generate_qr_from_employee
-from employee.views import sign_in
+from employee.views import sign_in, logout_view
 from employee.api.router import router as employee_router
 
 
@@ -30,6 +30,7 @@ urlpatterns = [
     path('verificar-qr-camara/', verify_qr_from_camera, name='verify_qr_from_camera'),
     path('generar-qr/', generate_qr_from_employee, name='generate_qr_from_employee'),
     path('sign-in/', sign_in, name='sign_in'),
+    path('logout/', logout_view, name='logout'),
     path('api/', include(employee_router.urls)),
 ]
 if settings.DEBUG:
