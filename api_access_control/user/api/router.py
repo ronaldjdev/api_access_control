@@ -1,7 +1,8 @@
 from rest_framework.routers import DefaultRouter
 
-from .viewset import EmployeeViewSet
+from employee.api.viewset import EmployeeViewSet
 from register_access.api.viewset import RegisterAccessViewSet
+
 
 router = DefaultRouter()
 router.register(prefix='empleado',viewset=EmployeeViewSet)

@@ -5,28 +5,48 @@ from import_export.fields import Field
 from .models import RegisterAccess
 
 class RegisterAccessResource(resources.ModelResource):
-    employee_name = Field(attribute='employee', column_name='employee_name', readonly=True)
+    user = Field(attribute='user', column_name='user', readonly=True)
 
     class Meta:
         model = RegisterAccess
-        exclude = ('employee',)
+        exclude = ('user',)
 
-    # def dehydrate_employee_name(self, register_access):
-    #     return str(register_access.employee)
+    # def dehydrate_user_name(self, register_access):
+    #     return str(register_access.user)
 
 class RegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
-    list_display    = ("get_employee_identification", "get_employee_name", "type_access", "employee_entry", "employee_exit","hours_worked", "extra_hours")
-    search_fields   = ["employee__name", "employee__identification", "type_access", "employee_entry", "employee_exit"]
+    list_display    = ("get_user_id_card", "get_user_name","get_user_last_name", "type_access", "user_entry", "user_exit","hours_worked", "extra_hours")
+    search_fields   = ["user__name", "user__id_card", "type_access", "user_entry", "user_exit"]
+
+    
     resource_class  = RegisterAccessResource
 
-    def get_employee_identification(self, obj):
-        return obj.employee.id_card
-    get_employee_identification.short_description = 'Identificación del Empleado'
+    def get_user_id_card(self, obj):
+        
+        return obj.user.id_card
+    get_user_id_card.short_description = 'Identificación'
 
-    def get_employee_name(self, obj):
-        return obj.employee.name
-    get_employee_name.short_description = 'Nombre del Empleado'
+    def get_user_name(self, obj):
+        return obj.user.name
+    get_user_name.short_description = 'Nombre'
+
+    def get_user_last_name(self, obj):
+        return obj.user.last_name
+    get_user_last_name.short_description = 'Apellido'
+
+        # Sobreescribir para buscar por valor y descripción de `type_access`
+    def get_search_results(self, request, queryset, search_term):
+        # Primero, obtenemos los resultados de la búsqueda normal
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        
+        # Si el término de búsqueda coincide con la descripción legible, agregamos esos resultados
+        if search_term.lower() in ['ingreso', 'in']:
+            queryset |= self.model.objects.filter(type_access='IN')
+        elif search_term.lower() in ['salida', 'out']:
+            queryset |= self.model.objects.filter(type_access='OUT')
+        
+        return queryset, use_distinct
 
 # Registrar el modelo en admin
 admin.site.register(RegisterAccess, RegisterAccessAdmin)

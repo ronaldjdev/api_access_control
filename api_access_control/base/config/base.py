@@ -34,9 +34,12 @@ BASE_APPS = [
 LOCAL_APPS = [
     'employee',
     'register_access',
+    'user',
 ]
 
 THIRD_PARTY_APPS = [
+    "corsheaders",
+    "livereload",
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -46,6 +49,8 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'livereload.middleware.LiveReloadScript',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -99,6 +104,8 @@ REST_FRAMEWORK = {
     # Define las clases de autenticación
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ],
 
     # Define las clases de permisos
@@ -108,7 +115,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-AUTH_USER_MODEL = 'employee.Employee'
+AUTH_USER_MODEL = 'user.User'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -120,6 +127,7 @@ SIMPLE_JWT = {
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+     'user.backends.CustomUserBackend',
 )
 
 # Internationalization

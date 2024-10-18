@@ -1,17 +1,17 @@
 from django.db import models
 from base.models import ModelBase
-from employee.models import Employee
+from user.models import User
 
 
 # Create your models here.
 
 class RegisterAccess(ModelBase):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name='Empleado',)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Empleado',)
     type_access = models.CharField('Tipo de acceso',max_length=10, choices=[('IN', 'Ingreso'), ('OUT', 'Salida')])
-    employee_entry = models.DateTimeField('Ingreso',null=True, blank=True)
-    employee_exit = models.DateTimeField('Salida',null=True, blank=True)
-    hours_worked = models.DecimalField('Horas trabajadas', max_digits=5, decimal_places=2, default=0.00)
-    extra_hours = models.DecimalField('Horas extras', max_digits=5, decimal_places=2, default=0.00)
+    user_entry = models.DateTimeField('Ingreso',null=True, blank=True)
+    user_exit = models.DateTimeField('Salida',null=True, blank=True)
+    hours_worked = models.DecimalField('H. trabajadas', max_digits=5, decimal_places=2, default=0.00)
+    extra_hours = models.DecimalField('H. extras', max_digits=5, decimal_places=2, default=0.00)
     qr_data = models.CharField('Codigo QR',max_length=255, blank=True, null=True)
 
     class Meta:
@@ -21,9 +21,9 @@ class RegisterAccess(ModelBase):
 
     def save(self, *args, **kwargs):
         # Calcular horas trabajadas y horas extras
-        if self.employee_entry and self.employee_exit:
+        if self.user_entry and self.user_exit:
             # Calculamos la diferencia en horas
-            work_duration = self.employee_exit - self.employee_entry
+            work_duration = self.user_exit - self.user_entry
             hours = work_duration.total_seconds() / 3600  # Convertimos a horas
 
             # Jornada laboral estándar de 8 horas

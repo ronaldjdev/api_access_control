@@ -21,7 +21,7 @@ from django.urls import path, include
 
 from register_access.views import verify_qr_from_camera, generate_qr_from_employee
 from employee.views import sign_in, logout_view
-from employee.api.router import router as employee_router
+from user.api.router import router as employee_router
 
 
 urlpatterns = [

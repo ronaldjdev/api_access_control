@@ -4,36 +4,22 @@ from ..models import Employee
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = [
-            'id', 
-            'id_card', 
-            'type_id_card',
-            'name', 
-            'email', 
-            'image',
-            'phone', 
-            'address', 
-            'marital_status',
-            'gender'
-            ]
+        fields = '__all__'
 
-    # Sobrescribe para manejar la contraseña
-    def create(self, validated_data):
-        employee = Employee(**validated_data)
-        employee.set_password(validated_data['password'])
-        employee.save()
-        return employee
-
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.email = validated_data.get('email', instance.email)
-        instance.phone = validated_data.get('phone', instance.phone)
-        instance.address = validated_data.get('address', instance.address)
-        
-        # Si se pasa la contraseña, la encriptamos
-        password = validated_data.get('password', None)
-        if password:
-            instance.set_password(password)
-        
-        instance.save()
-        return instance
+    def to_representation(self, instance):
+        return {
+            'id': instance.id,
+            'id_card': instance.user.id_card,
+            'type_id_card': instance.get_type_id_card_display(),
+            'name': instance.user.name,
+            'last_name': instance.user.last_name,
+            'email': instance.user.email,
+            'phone': instance.phone,
+            'address': instance.address,
+            'marital_status': instance.get_marital_status_display(),
+            'gender': instance.get_gender_display(),
+            'rh': instance.rh,
+            'role': instance.role,
+            'job': instance.job,
+            'image': instance.image.url if instance.image else None
+        }
