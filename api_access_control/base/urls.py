@@ -20,18 +20,29 @@ from django.contrib import admin
 from django.urls import path, include
 
 from register_access.views import verify_qr_from_camera, generate_qr_from_employee
-from employee.views import sign_in, logout_view
-from user.api.router import router as employee_router
+from user.views import sign_in, logout_view
+from user.api.router import router as user_router
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # API
     path('api-auth/', include('rest_framework.urls')),
+    path('api/', include(user_router.urls)),
+
+    # Generacion y verificacion de QR
     path('verificar-qr-camara/', verify_qr_from_camera, name='verify_qr_from_camera'),
     path('generar-qr/', generate_qr_from_employee, name='generate_qr_from_employee'),
+
+    # Auth
     path('sign-in/', sign_in, name='sign_in'),
     path('logout/', logout_view, name='logout'),
-    path('api/', include(employee_router.urls)),
+    # path('register/', register_view, name='register'),
+    # path('refresh/', refresh_view, name='refresh'),
+
+
+    
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

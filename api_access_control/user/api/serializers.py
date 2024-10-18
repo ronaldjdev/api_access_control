@@ -4,17 +4,12 @@ from ..models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = [
-            'id', 
-            'id_card', 
-            'type_id_card',
-            'name', 
-            'email', 
-            'image',
-            'phone', 
-            'address', 
-            'marital_status',
-            'gender'
+        exclude = [
+            'last_login',
+            'timestamp',
+            'created_at',
+            'groups',
+            'user_permissions',
             ]
 
     # Sobrescribe para manejar la contraseña
@@ -25,10 +20,10 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
+        instance.id_card = validated_data.get('id_card', instance.id_card)
         instance.name = validated_data.get('name', instance.name)
+        instance.last_name = validated_data.get('name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
-        
-        # Si se pasa la contraseña, la encriptamos
         password = validated_data.get('password', None)
         if password:
             instance.set_password(password)

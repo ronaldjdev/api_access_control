@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from employee.models import Employee 
 # from django.http import JsonResponse
 # from django.contrib.auth import authenticate
 # from jwt import encode
@@ -28,6 +30,7 @@ def sign_in(request):
 
             # Buscar el empleado por identificación (o cualquier campo relevante)
             user = User.objects.filter(id_card=id_card).first()
+            employee = Employee.objects.filter(user=user.id).first()
 
             if user and user.check_password(password):
                 # Generar el token JWT utilizando RefreshToken
@@ -36,18 +39,21 @@ def sign_in(request):
                 print(user)
                 # Enviar la data adicional
                 employee_data = {
-                    'name': user.name,
+                    'id': user.id,
                     'id_card': user.id_card,
-                    'type_id_card': user.get_type_id_card_display(),
+                    'type_id_card': employee.get_type_id_card_display(),
+                    'image': employee.image.url if employee.image else None,
+                    'name': user.name,
+                    'last_name': user.last_name,
                     'email': user.email,
-                    'image': user.employee.image.url if user.image else None,
-                    'phone': user.phone,
-                    'address': user.address,
-                    'marital_status': user.get_marital_status_display(),
-                    'gender': user.get_gender_display(),
-                    'rh': user.get_rh_display(),
-                    'role': user.role,
-                    'job': user.job,
+                    'phone': employee.phone,
+                    'address': employee.address,
+                    'marital_status': employee.marital_status,
+                    'gender': employee.gender,
+                    'rh': employee.rh,
+                    'role': employee.role,
+                    'job': employee.job
+
                 }
 
                 return JsonResponse({
