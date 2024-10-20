@@ -44,9 +44,19 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'import_export',
+    'drf_yasg',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_PARTY_APPS
+
+# Swagger Doc setting
+
+SWAGGER_SETTINGS = {
+    "DOC_EXPANSION": "none"
+}
+
+APPEND_SLASH = False
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

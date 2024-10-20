@@ -19,29 +19,47 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
 from register_access.views import verify_qr_from_camera, generate_qr_from_employee
 from user.views import sign_in, logout_view
 from user.api.router import router as user_router
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Access Control API",
+        default_version="v1",
+        description="Documentación de la API para el sistema de control de acceso",
+        terms_of_service="https://www.example.com/terms/",
+        contact=openapi.Contact(email="contact@example.com"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # API
-    path('api-auth/', include('rest_framework.urls')),
-    path('api/', include(user_router.urls)),
+    path('api-auth', include('rest_framework.urls')),
+    path('api', include(user_router.urls)),
 
     # Generacion y verificacion de QR
-    path('verificar-qr-camara/', verify_qr_from_camera, name='verify_qr_from_camera'),
-    path('generar-qr/', generate_qr_from_employee, name='generate_qr_from_employee'),
+    path('verificar-qr-camara', verify_qr_from_camera, name='verify_qr_from_camera'),
+    path('generar-qr', generate_qr_from_employee, name='generate_qr_from_employee'),
 
     # Auth
-    path('sign-in/', sign_in, name='sign_in'),
-    path('logout/', logout_view, name='logout'),
-    # path('register/', register_view, name='register'),
-    # path('refresh/', refresh_view, name='refresh'),
+    path('sign-in', sign_in, name='sign_in'),
+    path('logout', logout_view, name='logout'),
+    # path('register', register_view, name='register'),
+    # path('refresh', refresh_view, name='refresh'),
 
-
+    # Swagger
+    path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
 ]
 if settings.DEBUG:
