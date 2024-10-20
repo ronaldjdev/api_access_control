@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from employee.models import Employee
 from ..models import User
@@ -86,3 +86,24 @@ class LogoutSerializer(serializers.Serializer):
             token.blacklist()  # Invalida el token de refresh
         except Exception as e:
             raise serializers.ValidationError(str(e))
+
+
+class TokenRefreshSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, data):
+        refresh_token = data.get('refresh')
+        if not refresh_token:
+            raise serializers.ValidationError('El token de actualización es requerido.')
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            new_access_token = str(refresh.access_token)
+
+            return {
+                'access': new_access_token,
+                'refresh': str(refresh)  # O puedes retornar solo el nuevo token de acceso
+            }
+
+        except TokenError as e:
+            raise serializers.ValidationError(f"Token inválido o expirado: {str(e)}")
