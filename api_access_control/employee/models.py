@@ -26,6 +26,7 @@ class Employee(ModelBase):
     rh = models.CharField('RH', max_length=255, choices=RH, default=RH[0][0])
     role = models.CharField('Rol', max_length=255, default='employee')
     job = models.CharField('Cargo', max_length=255, default='Servicio')
+    date_birth = models.DateField('Fecha de nacimiento', null=True, blank=True)
 
     
     def __str__(self):

@@ -30,5 +30,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'rh': instance.rh,
             'role': instance.role,
             'job': instance.job,
-            'image': instance.image.url if instance.image else None
+            'image': instance.image.url if instance.image else None,
+            'date_birth': instance.date_birth
         }

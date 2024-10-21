@@ -61,7 +61,7 @@ class SignInSerializer(serializers.Serializer):
                 'rh': employee.rh,
                 'role': employee.role,
                 'job': employee.job,
-                'date_birth': user.date_birth
+                'date_birth': employee.date_birth
             }
 
             return {
