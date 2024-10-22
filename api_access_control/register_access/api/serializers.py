@@ -5,6 +5,7 @@ class RegisterAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = RegisterAccess
         fields = '__all__'
+        read_only_fields = ['qr_code']
 
     def to_representation(self, instance):
         return {

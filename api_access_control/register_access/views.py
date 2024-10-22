@@ -83,7 +83,6 @@ def verify_qr_from_camera(request):
     """
 
     qr_data = read_qr_camera()
-    print("QR DATA: ",qr_data)
     if not qr_data:
         return JsonResponse({'status': 'error', 'message': 'No se encontró un QR válido'})
 
@@ -129,11 +128,9 @@ def generate_qr_from_employee(request):
     try:
         token = token.split()[1]  # Extraer solo el token
         payload = decode_token(token)
-        print(payload.payload)
         user_id = payload['user_id']  # Extraer el ID del empleado
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
-        print('Error al decodificar el token:', str(e))  # Imprimir el error si hay uno
-        return JsonResponse({'status': 'error', 'message': 'Token inválido'}, status=403)
+        return JsonResponse({'status': 'error', 'message': 'Token inválido', 'error': str(e)}, status=403)
     
     # Generar el QR para el empleado
     qr_path = generate_dynamic_qr(user_id)

@@ -1,13 +1,12 @@
-from io import BytesIO
-
+from django.conf import settings
 from django.core.files import File
-
+import os
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-import pyqrcode
+
+from register_access.utils.qr_generator import generate_dynamic_qr
 
 from .serializers import RegisterAccessSerializer, GenerateQrCodeSerializer
 from ..models import RegisterAccess, QrCode
@@ -31,30 +30,42 @@ class GenerateQrCodeViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        user = request.user  # Obtén el usuario autenticado
+        user = request.user
 
-        # Crear el token de acceso para el usuario
-        token = str(RefreshToken.for_user(user))
+        if not user or user.is_anonymous:
+            return Response({"error": "Usuario no autenticado"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Generar el código QR
-        qr = pyqrcode.create(token, error='L')
+        try:
+            # Buscar si ya existe un QR para el usuario
+            existing_qr_code = QrCode.objects.filter(user=user).first()
 
-        # Crear un buffer para almacenar la imagen en memoria
-        buffer = BytesIO()
-        qr.png(buffer, scale=8)  # Guarda el QR en el buffer
+            # Si ya existe un QR, eliminar el archivo anterior
+            if existing_qr_code and existing_qr_code.qr_code:
+                old_file_path = os.path.join(settings.MEDIA_ROOT, existing_qr_code.qr_code.name)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)  # Eliminar el archivo anterior
 
-        # Crear la instancia de QrCode
-        qr_code_instance = QrCode(
-            user=user,
-        )
 
-        # Asignar el archivo desde el buffer al campo `qr_code`
-        qr_filename = f'{user.id}_qr.png'
-        qr_code_instance.qr_code.save(qr_filename, File(buffer), save=True)
+            # Generar un nuevo QR (solo el buffer)
+            qr_buffer = generate_dynamic_qr(user.id)
 
-        # Serializa el código QR generado
-        serializer = self.get_serializer(qr_code_instance)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Guardar el QR en la base de datos
+            if existing_qr_code:
+                # Si ya existe, actualizamos el archivo QR
+                existing_qr_code.qr_code.save(f'{user.id}.png', File(qr_buffer), save=True)
+                qr_code_instance = existing_qr_code
+            else:
+                # Si no existe, creamos uno nuevo
+                qr_code_instance = QrCode(user=user)
+                qr_code_instance.qr_code.save(f'{user.id}.png', File(qr_buffer), save=True)
+
+            serializer = self.get_serializer(qr_code_instance)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
     def destroy (self, request, pk=None, **kwargs):
         data = self.get_queryset().filter(id=pk).first()

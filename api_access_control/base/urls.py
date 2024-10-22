@@ -23,6 +23,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+# from register_access.api.viewset import GenerateQrCodeViewSet
 from register_access.views import verify_qr, generate_qr_from_employee
 from user.views import sign_in_view, logout_view, refresh_token_view
 from user.api.router import router as user_router
@@ -48,6 +49,7 @@ urlpatterns = [
     path('api/', include(user_router.urls)),
 
     # Generacion y verificacion de QR
+    # path('generar-qr', GenerateQrCodeViewSet.as_view(), name='generate_qr'),
     path('verify-qr', verify_qr, name='verify_qr'),
     path('generate-qr', generate_qr_from_employee, name='generate_qr_from_employee'),
 
