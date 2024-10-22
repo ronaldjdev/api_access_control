@@ -23,7 +23,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from register_access.views import verify_qr_from_camera, generate_qr_from_employee
+from register_access.views import verify_qr, generate_qr_from_employee
 from user.views import sign_in_view, logout_view, refresh_token_view
 from user.api.router import router as user_router
 
@@ -48,8 +48,8 @@ urlpatterns = [
     path('api/', include(user_router.urls)),
 
     # Generacion y verificacion de QR
-    path('verificar-qr-camara', verify_qr_from_camera, name='verify_qr_from_camera'),
-    path('generar-qr', generate_qr_from_employee, name='generate_qr_from_employee'),
+    path('verify-qr', verify_qr, name='verify_qr'),
+    path('generate-qr', generate_qr_from_employee, name='generate_qr_from_employee'),
 
     # Auth
     path('sign-in', sign_in_view, name='sign_in'),
@@ -61,6 +61,4 @@ urlpatterns = [
     path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
-]
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import RegisterAccess
+from ..models import QrCode, RegisterAccess
 
 class RegisterAccessSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,5 +20,11 @@ class RegisterAccessSerializer(serializers.ModelSerializer):
         }
 
 
-
+class GenerateQrCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QrCode
+        fields ='__all__'
+    
+    def create(self, validated_data):
+        return QrCode.objects.create(**validated_data)
 

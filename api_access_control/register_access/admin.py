@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
-from .models import RegisterAccess
+from .models import QrCode, RegisterAccess
 
 class RegisterAccessResource(resources.ModelResource):
     user = Field(attribute='user', column_name='user', readonly=True)
@@ -11,15 +11,35 @@ class RegisterAccessResource(resources.ModelResource):
         model = RegisterAccess
         exclude = ('user',)
 
-    # def dehydrate_user_name(self, register_access):
-    #     return str(register_access.user)
+class QrCodeResource(resources.ModelResource):
+    user = Field(attribute='user', column_name='user', readonly=True)
 
+    class Meta:
+        model = QrCode
+        exclude = ('user',)
+
+class QrCodeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+
+    list_display    = ("get_user_id_card", "get_user_name","get_user_last_name", "qr_code")
+    search_fields   = ["user__name", "user__id_card"]
+    resource_class  = QrCodeResource
+
+    def get_user_id_card(self, obj):    
+        return obj.user.id_card
+    get_user_id_card.short_description = 'Identificación'
+
+    def get_user_name(self, obj):
+        return obj.user.name
+    get_user_name.short_description = 'Nombre'
+
+    def get_user_last_name(self, obj):
+        return obj.user.last_name
+    get_user_last_name.short_description = 'Apellido'
+    
 class RegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
     list_display    = ("get_user_id_card", "get_user_name","get_user_last_name", "type_access", "user_entry", "user_exit","hours_worked", "extra_hours")
     search_fields   = ["user__name", "user__id_card", "type_access", "user_entry", "user_exit"]
-
-    
     resource_class  = RegisterAccessResource
 
     def get_user_id_card(self, obj):
@@ -50,3 +70,4 @@ class RegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 # Registrar el modelo en admin
 admin.site.register(RegisterAccess, RegisterAccessAdmin)
+admin.site.register(QrCode, QrCodeAdmin)
