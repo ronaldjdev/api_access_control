@@ -1,3 +1,5 @@
+from django.contrib.auth.hashers import make_password
+
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
@@ -87,7 +89,6 @@ class LogoutSerializer(serializers.Serializer):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-
 class TokenRefreshSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
@@ -107,3 +108,41 @@ class TokenRefreshSerializer(serializers.Serializer):
 
         except TokenError as e:
             raise serializers.ValidationError(f"Token inválido o expirado: {str(e)}")
+
+class RegisterSerializer(serializers.Serializer):
+    id_card = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True)
+    name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+    def validate(self, data):
+        # Validación de que no exista otro usuario con la misma identificación
+        id_card = data.get('id_card')
+        if User.objects.filter(id_card=id_card).exists():
+            raise serializers.ValidationError("Ya existe un usuario con esa identificación")
+
+        # Valida el correo para que no se repita
+        email = data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("Ya existe un usuario con ese correo electrónico")
+
+        return data
+
+    # def validate_password(self, value):
+    #     # Aquí puedes agregar más validaciones de la contraseña si es necesario
+    #     if len(value) < 8:
+    #         raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres")
+    #     return value
+
+    def create(self, validated_data):
+        # Creación del usuario
+        user = User(
+            id_card=validated_data['id_card'],
+            name=validated_data['name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            password=make_password(validated_data['password'])  # Cifrar la contraseña
+        )
+        user.save()
+        return user
