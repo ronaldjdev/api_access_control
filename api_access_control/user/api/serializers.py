@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError, AccessToken
 
 from employee.models import Employee
 from ..models import User
@@ -158,3 +158,21 @@ class RegisterSerializer(serializers.Serializer):
         )
         user.save()
         return user
+    
+class TokenVerifySerializer(serializers.Serializer):
+    token = serializers.CharField()
+
+    def validate_token(self, value):
+        try:
+            # Intenta decodificar el token y verifica el usuario
+            access_token = AccessToken(value)
+            user_id = access_token['user_id']
+            
+            # Verifica si el usuario existe en la base de datos
+            if not User.objects.filter(id=user_id).exists():
+                raise serializers.ValidationError("Usuario no encontrado.")
+                
+        except Exception as e:
+            raise serializers.ValidationError(f"Token inválido o expirado: {str(e)}")
+        
+        return value

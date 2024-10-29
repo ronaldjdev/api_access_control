@@ -1,7 +1,7 @@
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .api.serializers import SignInSerializer, LogoutSerializer, TokenRefreshSerializer, RegisterSerializer
+from .api.serializers import SignInSerializer, LogoutSerializer, TokenRefreshSerializer, RegisterSerializer, TokenVerifySerializer
 
 
 class SignInView(generics.GenericAPIView):
@@ -41,3 +41,14 @@ class RefreshTokenView(generics.GenericAPIView):
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
+
+class TokenVerifyView(generics.GenericAPIView):
+    permission_classes = [AllowAny]  # Permitir acceso sin autenticación para verificación del token
+
+    def post(self, request):
+        serializer = TokenVerifySerializer(data=request.data)
+        
+        # Valida el serializador y devuelve si es válido o no
+        if serializer.is_valid():
+            return Response({"is_valid": True}, status=status.HTTP_200_OK)
+        return Response({"is_valid": False, "errors": serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)

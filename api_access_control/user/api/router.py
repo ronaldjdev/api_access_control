@@ -5,6 +5,7 @@ from register_access.api.viewset import RegisterAccessViewSet, GenerateQrCodeVie
 from .viewset import UserViewSet
 
 
+
 router = DefaultRouter()
 router.register(prefix='empleado',viewset=EmployeeViewSet)
 router.register(prefix='registro_acesso',viewset=RegisterAccessViewSet)
