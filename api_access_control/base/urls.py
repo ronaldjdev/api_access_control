@@ -25,7 +25,7 @@ from drf_yasg import openapi
 
 # from register_access.api.viewset import GenerateQrCodeViewSet
 from register_access.views import verify_qr, generate_qr_from_employee
-from user.views import sign_in_view, logout_view, refresh_token_view, register_view
+from user.views import SignInView, LogoutView, RefreshTokenView, RegisterView
 from user.api.router import router as user_router
 
 schema_view = get_schema_view(
@@ -54,10 +54,10 @@ urlpatterns = [
     path('generate-qr', generate_qr_from_employee, name='generate_qr_from_employee'),
 
     # Auth
-    path('sign-in', sign_in_view, name='sign_in'),
-    path('logout', logout_view, name='logout'),
-    path('refresh', refresh_token_view, name='refresh'),
-    path('register', register_view, name='register'),
+    path('sign-in', SignInView.as_view(), name='sign_in'),
+    path('logout', LogoutView.as_view(), name='logout'),
+    path('refresh', RefreshTokenView.as_view(), name='refresh'),
+    path('register', RegisterView.as_view(), name='register'),
 
     # Swagger
     path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

@@ -111,6 +111,7 @@ class TokenRefreshSerializer(serializers.Serializer):
 
 class RegisterSerializer(serializers.Serializer):
     id_card = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True)
     name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
@@ -127,18 +128,29 @@ class RegisterSerializer(serializers.Serializer):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("Ya existe un usuario con ese correo electrónico")
 
+        # # Validación de que la contraseña tenga al menos 8 caracteres
+        # password = data.get('password')
+        # if len(password) < 8:
+        #     raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres")
+
+        # Validación de que la identificación sea un número
+        id_card = data.get('id_card')
+        if not id_card.isdigit():
+            raise serializers.ValidationError("La identificación debe ser un número")
+        
+        # Valida el nombre de usuario para que no se repita
+        username = data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Ya existe un usuario con ese nombre de usuario")
+
         return data
 
-    # def validate_password(self, value):
-    #     # Aquí puedes agregar más validaciones de la contraseña si es necesario
-    #     if len(value) < 8:
-    #         raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres")
-    #     return value
 
     def create(self, validated_data):
         # Creación del usuario
         user = User(
             id_card=validated_data['id_card'],
+            username=validated_data['id_card'],
             name=validated_data['name'],
             last_name=validated_data['last_name'],
             email=validated_data['email'],
