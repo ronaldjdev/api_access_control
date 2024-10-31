@@ -9,10 +9,10 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 import jwt
 
 from .models import RegisterAccess
-from base.settings import SECRET_KEY
-from employee.models import Employee
+# from base.settings import SECRET_KEY
+# from employee.models import Employee
 from user.models import User
-from .utils.qr_reader import read_qr_camera
+# from .utils.qr_reader import read_qr_camera
 from .utils.qr_generator import generate_dynamic_qr
 
 def decode_token(token):
@@ -76,44 +76,44 @@ def verify_qr(request):
     
   
 
-@csrf_exempt
-def verify_qr_from_camera(request):
-    """
-    Verifica un código QR escaneado desde la cámara en tiempo real.
-    """
+# @csrf_exempt
+# def verify_qr_from_camera(request):
+#     """
+#     Verifica un código QR escaneado desde la cámara en tiempo real.
+#     """
 
-    qr_data = read_qr_camera()
-    if not qr_data:
-        return JsonResponse({'status': 'error', 'message': 'No se encontró un QR válido'})
+#     qr_data = read_qr_camera()
+#     if not qr_data:
+#         return JsonResponse({'status': 'error', 'message': 'No se encontró un QR válido'})
 
-    # Verificar el contenido del QR escaneado
-    try:
-        decoded = jwt.decode(qr_data, SECRET_KEY, algorithms=['HS256'])
-        employee_id = decoded['employee_id']
-        employee = Employee.objects.get(id=employee_id)
+#     # Verificar el contenido del QR escaneado
+#     try:
+#         decoded = jwt.decode(qr_data, SECRET_KEY, algorithms=['HS256'])
+#         employee_id = decoded['employee_id']
+#         employee = Employee.objects.get(id=employee_id)
 
-        # Obtener el último registro de acceso
-        last_register = RegisterAccess.objects.filter(employee=employee).last()
+#         # Obtener el último registro de acceso
+#         last_register = RegisterAccess.objects.filter(employee=employee).last()
 
-        if last_register is None or last_register.type_access == 'OUT':
-            # Si no hay registros o el último es OUT, se crea un nuevo registro de entrada
-            type_access = 'IN'
-            new_register = RegisterAccess.objects.create(employee=employee, type_access=type_access, qr_data=qr_data, employee_entry=timezone.now())
-            return JsonResponse({'status': 'success', 'type_access': type_access, 'entry_time': new_register.employee_entry.isoformat()})
-        elif last_register.type_access == 'IN':
-            # Si el último registro es IN, se actualiza el registro para marcar la salida
-            last_register.employee_exit = timezone.now()  # Asumiendo que has importado timezone
-            last_register.type_access = 'OUT'
-            last_register.save()
+#         if last_register is None or last_register.type_access == 'OUT':
+#             # Si no hay registros o el último es OUT, se crea un nuevo registro de entrada
+#             type_access = 'IN'
+#             new_register = RegisterAccess.objects.create(employee=employee, type_access=type_access, qr_data=qr_data, employee_entry=timezone.now())
+#             return JsonResponse({'status': 'success', 'type_access': type_access, 'entry_time': new_register.employee_entry.isoformat()})
+#         elif last_register.type_access == 'IN':
+#             # Si el último registro es IN, se actualiza el registro para marcar la salida
+#             last_register.employee_exit = timezone.now()  # Asumiendo que has importado timezone
+#             last_register.type_access = 'OUT'
+#             last_register.save()
 
-            return JsonResponse({'status': 'success', 'type_access': 'OUT', 'exit_time': last_register.employee_exit.isoformat()})
+#             return JsonResponse({'status': 'success', 'type_access': 'OUT', 'exit_time': last_register.employee_exit.isoformat()})
 
 
-        return JsonResponse({'status': 'success', 'type_access': type_access})
-    except jwt.ExpiredSignatureError:
-        return JsonResponse({'status': 'error', 'message': 'QR expirado'})
-    except jwt.InvalidTokenError:
-        return JsonResponse({'status': 'error', 'message': 'QR inválido'})
+#         return JsonResponse({'status': 'success', 'type_access': type_access})
+#     except jwt.ExpiredSignatureError:
+#         return JsonResponse({'status': 'error', 'message': 'QR expirado'})
+#     except jwt.InvalidTokenError:
+#         return JsonResponse({'status': 'error', 'message': 'QR inválido'})
 
 
 def generate_qr_from_employee(request):
