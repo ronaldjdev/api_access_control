@@ -61,6 +61,7 @@ APPEND_SLASH = False
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'livereload.middleware.LiveReloadScript',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -89,6 +90,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'base.wsgi.application'
 
+WHITENOISE_MAX_AGE = 31536000  # 1 año en segundos
 
 
 
