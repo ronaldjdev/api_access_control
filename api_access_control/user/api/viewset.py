@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ..models import User
-from .serializers import EmployeeSerializer
+from .serializers import UserSerializer
 
 
-class EmployeeViewSet(ModelViewSet):
-    serializer_class = EmployeeSerializer
+class UserViewSet(ModelViewSet):
+    serializer_class = UserSerializer
     queryset = User.objects.filter(is_active=True)
 
     def destroy (self, request, pk=None, **kwargs):

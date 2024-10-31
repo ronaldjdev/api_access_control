@@ -68,9 +68,9 @@ class User (AbstractBaseUser, PermissionsMixin, ModelBase):
     email = models.EmailField('Email',max_length=255, unique=True)
     password = models.CharField('Contraseña',max_length=255)
 
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField('Activo',default=True)
+    is_staff = models.BooleanField('Administrador',default=False)
+    is_superuser = models.BooleanField('Superusuario',default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'name', 'last_name', 'id_card']

@@ -1,42 +1,21 @@
+from io import BytesIO
 import pyqrcode
-import jwt
-import os   
-import datetime
-from base.settings import SECRET_KEY
 
-def generate_dynamic_qr(employee_id):
-    """
-    Genera un código QR dinámico para un empleado.
+from rest_framework_simplejwt.tokens import RefreshToken
+from user.models import User
 
-    Args:
-        employee_id (uuid): Identificador del empleado.
+def generate_dynamic_qr(user_id):
+    try:
+        user = User.objects.get(id=user_id)  # Obtén el objeto de usuario
+    except User.DoesNotExist:
+        raise ValueError("Usuario no encontrado")
 
-    Returns:
-        str: Ruta del archivo del código QR generado.
-
-    El código QR contiene un token JWT que lleva el identificador del empleado y
-    una marca de tiempo. El token es válido por 5 minutos.
-    """
-    qr_directory = 'media/qr'
+    token = str(RefreshToken.for_user(user))  # Genera el token para el usuario
     
-    # Asegúrate de que la carpeta existe
-    if not os.path.exists(qr_directory):
-        os.makedirs(qr_directory)
-
-    timestamp = datetime.datetime.now().isoformat()
-    payload = {
-        'employee_id': employee_id,
-        'timestamp': timestamp,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)  # QR válido por 5 minutos
-    }
-    
-    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    
-    # Crea el QR y guarda en la ruta correcta
+    # Crea el código QR en memoria (usando un buffer de BytesIO)
     qr = pyqrcode.create(token, error='L')
-    qr_filename = f'{employee_id}_qr.png'
-    qr_path = os.path.join(qr_directory, qr_filename)
-    
-    qr.png(qr_path, scale=8)  # Guarda el QR en la ruta correcta
+    buffer = BytesIO()
+    qr.png(buffer, scale=8)  # Guarda el QR en el buffer
+    buffer.seek(0)  # Resetea el puntero del buffer al inicio
 
-    return qr_path  # Devuelve la ruta completa del archivo QR
+    return buffer  # Devuelve el buffer con el QR

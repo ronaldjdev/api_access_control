@@ -4,6 +4,14 @@ from user.models import User
 
 
 # Create your models here.
+class QrCode (ModelBase):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Empleado',)
+    qr_code = models.ImageField('Codigo QR', upload_to='qr/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Codigo QR'
+        verbose_name_plural = 'Codigos QR'
+        app_label = 'register_access'
 
 class RegisterAccess(ModelBase):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Empleado',)
@@ -12,7 +20,7 @@ class RegisterAccess(ModelBase):
     user_exit = models.DateTimeField('Salida',null=True, blank=True)
     hours_worked = models.DecimalField('H. trabajadas', max_digits=5, decimal_places=2, default=0.00)
     extra_hours = models.DecimalField('H. extras', max_digits=5, decimal_places=2, default=0.00)
-    qr_data = models.CharField('Codigo QR',max_length=255, blank=True, null=True)
+    qr_data = models.ForeignKey(QrCode, on_delete=models.CASCADE, verbose_name='Codigo QR',null=True, blank=True)
 
     class Meta:
         verbose_name = 'Registro de acceso'

@@ -44,9 +44,19 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'import_export',
+    'drf_yasg',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_PARTY_APPS
+
+# Swagger Doc setting
+
+SWAGGER_SETTINGS = {
+    "DOC_EXPANSION": "none"
+}
+
+APPEND_SLASH = False
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -142,8 +152,17 @@ USE_I18N = True
 USE_TZ = True
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
 
