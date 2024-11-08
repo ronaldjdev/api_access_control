@@ -48,22 +48,42 @@ class SignInSerializer(serializers.Serializer):
             refresh = RefreshToken.for_user(user)
             employee = Employee.objects.filter(user=user).first()
 
+            # employee_data = {
+            # #     'id': user.id,
+            # #     'id_card': user.id_card,
+            # #     'type_id_card': employee.type_id_card,
+            # #     'image': employee.image.url if employee.image else None,
+            # #     'name': user.name,
+            # #     'last_name': user.last_name,
+            # #     'email': user.email,
+            # #     'phone': employee.phone,
+            # #     'address': employee.address,
+            # #     'marital_status': employee.marital_status,
+            # #     'gender': employee.gender,
+            # #     'rh': employee.rh,
+            # #     'role': employee.role,
+            # #     'job': employee.job,
+            # #     'date_birth': employee.date_birth
+            # }
             employee_data = {
                 'id': user.id,
                 'id_card': user.id_card,
-                'type_id_card': employee.get_type_id_card_display(),
-                'image': employee.image.url if employee.image else None,
                 'name': user.name,
                 'last_name': user.last_name,
                 'email': user.email,
-                'phone': employee.phone,
-                'address': employee.address,
-                'marital_status': employee.marital_status,
-                'gender': employee.gender,
-                'rh': employee.rh,
-                'role': employee.role,
-                'job': employee.job,
-                'date_birth': employee.date_birth
+                'employee': {
+                    'id': employee.id,
+                    'type_id_card': employee.type_id_card,
+                    'image': employee.image.url if employee.image else None,
+                    'phone': employee.phone,
+                    'address': employee.address,
+                    'marital_status': employee.marital_status,
+                    'gender': employee.gender,
+                    'rh': employee.rh,
+                    'role': employee.role,
+                    'job': employee.job,
+                    'date_birth': employee.date_birth
+                }
             }
 
             return {
