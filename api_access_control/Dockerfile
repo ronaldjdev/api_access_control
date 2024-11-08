@@ -10,7 +10,7 @@ COPY . /app/
 
 RUN chmod +x /app/entrypoint.sh
 # Instala las dependencias de tu aplicación
-RUN pip install --no-cache-dir -r requirements.txt
+RUN  sleep 5 && pip install --no-cache-dir -r requirements.txt
 
 # Expone el puerto que va a usar Gunicorn
 EXPOSE 8000
