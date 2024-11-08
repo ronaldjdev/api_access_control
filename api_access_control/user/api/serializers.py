@@ -48,7 +48,7 @@ class SignInSerializer(serializers.Serializer):
         if user and user.check_password(password):
             print("Credenciales correctas")
             refresh = RefreshToken.for_user(user)
-            employee = Employee.objects.filter(user=user).first()
+            employee = Employee.objects.filter(user=user.id).first()
             print("Empleado:", employee)
             print("User:", user)
             employee_data = {
