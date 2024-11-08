@@ -57,7 +57,7 @@ class SignInSerializer(serializers.Serializer):
                 'name': user.name,
                 'last_name': user.last_name,
                 'email': user.email,
-                'employee': {
+                'employee': employee and {
                     'id': employee.id,
                     'type_id_card': employee.type_id_card,
                     'image': employee.image.url if employee.image else None,
@@ -69,7 +69,7 @@ class SignInSerializer(serializers.Serializer):
                     'role': employee.role,
                     'job': employee.job,
                     'date_birth': employee.date_birth
-                }
+                } or None,
             }
 
             return {
