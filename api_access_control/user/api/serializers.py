@@ -43,28 +43,11 @@ class SignInSerializer(serializers.Serializer):
     def validate(self, data):
         id_card = data.get('id_card')
         password = data.get('password')
+        print("Datos recibidos:", id_card, password) 
         user = User.objects.filter(id_card=id_card).first()
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
             employee = Employee.objects.filter(user=user).first()
-
-            # employee_data = {
-            # #     'id': user.id,
-            # #     'id_card': user.id_card,
-            # #     'type_id_card': employee.type_id_card,
-            # #     'image': employee.image.url if employee.image else None,
-            # #     'name': user.name,
-            # #     'last_name': user.last_name,
-            # #     'email': user.email,
-            # #     'phone': employee.phone,
-            # #     'address': employee.address,
-            # #     'marital_status': employee.marital_status,
-            # #     'gender': employee.gender,
-            # #     'rh': employee.rh,
-            # #     'role': employee.role,
-            # #     'job': employee.job,
-            # #     'date_birth': employee.date_birth
-            # }
             employee_data = {
                 'id': user.id,
                 'id_card': user.id_card,
@@ -91,7 +74,9 @@ class SignInSerializer(serializers.Serializer):
                 'access': str(refresh.access_token),
                 'data': employee_data
             }
-        raise serializers.ValidationError('Credenciales inválidas')
+        else:
+            print("Error de autenticación")  # Para depuración
+            raise serializers.ValidationError('Credenciales inválidas')
 
 class LogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
