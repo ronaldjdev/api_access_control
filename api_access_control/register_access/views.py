@@ -6,14 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
-import jwt
-
 from .models import RegisterAccess
 # from base.settings import SECRET_KEY
 # from employee.models import Employee
 from user.models import User
 # from .utils.qr_reader import read_qr_camera
-from .utils.qr_generator import generate_dynamic_qr
+from .utils.qr_generator import generate_dynamic_qr, generate_qr_view
 
 def decode_token(token):
     try:
@@ -129,7 +127,7 @@ def generate_qr_from_employee(request):
         token = token.split()[1]  # Extraer solo el token
         payload = decode_token(token)
         user_id = payload['user_id']  # Extraer el ID del empleado
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
+    except (TokenError, InvalidToken) as e:
         return JsonResponse({'status': 'error', 'message': 'Token inválido', 'error': str(e)}, status=403)
     
     # Generar el QR para el empleado
@@ -141,3 +139,24 @@ def generate_qr_from_employee(request):
     # Devolver la ruta o URL del QR generado
     qr_url = f'media/qr/{os.path.basename(qr_path)}'  # Suponiendo que las imágenes están servidas desde /media/
     return JsonResponse({'status': 'success', 'qr_image_url': qr_url})
+
+@csrf_exempt
+def generate_qr_temporary(request):
+    """
+    Endpoint para generar un código QR dinámico para un empleado.
+    """
+    token = request.META.get('HTTP_AUTHORIZATION')
+    print('token: ', token)  
+    if not token:
+        return JsonResponse({'status': 'error', 'message': 'Token no proporcionado'}, status=403)
+
+    try:
+        token = token.split()[1]  # Extraer solo el token
+        payload = decode_token(token)
+        user_id = payload['user_id']  # Extraer el ID del empleado
+        print('payload: ', payload)
+    except (TokenError, InvalidToken) as e:
+        return JsonResponse({'status': 'error', 'message': 'Token inválido', 'error': str(e)}, status=403)
+    
+    # Generar el QR para el empleado y devolverlo como una imagen directamente
+    return generate_qr_view(user_id)
