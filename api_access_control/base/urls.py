@@ -24,7 +24,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 # from register_access.api.viewset import GenerateQrCodeViewSet
-from register_access.views import verify_qr, generate_qr_from_employee
+from register_access.views import verify_qr, generate_qr_from_employee, generate_qr_temporary
 from user.views import SignInView, LogoutView, RefreshTokenView, RegisterView, TokenVerifyView
 from user.api.router import router as user_router
 
@@ -52,6 +52,7 @@ urlpatterns = [
     # path('generar-qr', GenerateQrCodeViewSet.as_view(), name='generate_qr'),
     path('verify-qr', verify_qr, name='verify_qr'),
     path('generate-qr', generate_qr_from_employee, name='generate_qr_from_employee'),
+    path('generate-qr-view', generate_qr_temporary, name='generate_qr'),
 
     # Auth
     path('sign-in', SignInView.as_view(), name='sign_in'),

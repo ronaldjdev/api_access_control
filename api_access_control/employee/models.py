@@ -1,5 +1,8 @@
 import os
 from django.db import models
+
+from cloudinary.models import CloudinaryField
+
 from user.models import User
 from base.models import ModelBase
 from .choices import ID_CHOICES, GENDER, MARITAL_STATUS, RH
@@ -18,7 +21,8 @@ def employee_image_upload_path(instance, filename):
 class Employee(ModelBase):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     type_id_card = models.CharField('Tipo de identificación', max_length=255, choices=ID_CHOICES, default=ID_CHOICES[0][0])
-    image = models.ImageField("Imagen Perfil", upload_to=employee_image_upload_path, blank=True)
+    # image = models.ImageField("Imagen Perfil", upload_to=employee_image_upload_path, blank=True)
+    image = CloudinaryField('Imagen Perfil', blank=True)
     phone = models.CharField('Teléfono', max_length=255)
     address = models.CharField('Dirección', max_length=255)
     marital_status = models.CharField("Estado Civil", max_length=255, choices=MARITAL_STATUS, default=MARITAL_STATUS[0][0])

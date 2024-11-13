@@ -8,8 +8,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 # SECURE_SSL_REDIRECT = False
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = ['https://api-access-control.onrender.com', 'api-access-control.onrender.com']
-
+ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['https://api-access-control.onrender.com', 'api-access-control.onrender.com']
 
 
 
@@ -38,8 +38,8 @@ ROOT_URLCONF = 'base.urls'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 # SECURE_BROWSER_XSS_FILTER = True
 # SECURE_CONTENT_TYPE_NOSNIFF = True
 # SECURE_HSTS_SECONDS = 3600
