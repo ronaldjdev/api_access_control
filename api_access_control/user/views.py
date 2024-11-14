@@ -54,8 +54,10 @@ class TokenVerifyView(generics.GenericAPIView):
         return Response({"is_valid": False, "errors": serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
 
 class SendEmailView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = EmailSerializer
     def post(self, request):
-        serializer = EmailSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             subject = serializer.validated_data['subject']
             message = serializer.validated_data['message']
