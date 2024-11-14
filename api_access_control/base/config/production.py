@@ -8,8 +8,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 # SECURE_SSL_REDIRECT = False
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = []
-# ALLOWED_HOSTS = ['https://api-access-control.onrender.com', 'api-access-control.onrender.com']
+ALLOWED_HOSTS = ['https://api-access-control.onrender.com', 'api-access-control.onrender.com']
 
 
 

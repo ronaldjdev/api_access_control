@@ -1,8 +1,8 @@
+from django.core.mail import send_mail
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .api.serializers import SignInSerializer, LogoutSerializer, TokenRefreshSerializer, RegisterSerializer, TokenVerifySerializer
-
+from .api.serializers import SignInSerializer, LogoutSerializer, TokenRefreshSerializer, RegisterSerializer, TokenVerifySerializer, EmailSerializer
 
 class SignInView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -52,3 +52,23 @@ class TokenVerifyView(generics.GenericAPIView):
         if serializer.is_valid():
             return Response({"is_valid": True}, status=status.HTTP_200_OK)
         return Response({"is_valid": False, "errors": serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
+
+class SendEmailView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = EmailSerializer
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            subject = serializer.validated_data['subject']
+            message = serializer.validated_data['message']
+            recipient = serializer.validated_data['recipient']
+            
+            send_mail(
+                subject,
+                message,
+                'info.nikaacc@gmail.com',  # Cambia este correo por el tuyo
+                [recipient],
+                fail_silently=False,
+            )
+            return Response({'message': 'Email sent successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

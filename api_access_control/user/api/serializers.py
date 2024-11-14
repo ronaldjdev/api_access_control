@@ -184,3 +184,8 @@ class TokenVerifySerializer(serializers.Serializer):
             raise serializers.ValidationError(f"Token inválido o expirado: {str(e)}")
         
         return value
+
+class EmailSerializer(serializers.Serializer):
+    subject = serializers.CharField(max_length=255)
+    message = serializers.CharField()
+    recipient = serializers.EmailField()
