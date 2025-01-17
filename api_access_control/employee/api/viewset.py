@@ -9,6 +9,7 @@ from .serializers import EmployeeSerializer
 class EmployeeViewSet(ModelViewSet):
     serializer_class = EmployeeSerializer
     queryset = Employee.objects.filter(is_active=True)
+    # lookup_field = 'id'
 
     def destroy (self, request, pk=None, **kwargs):
         data = self.get_queryset().filter(id=pk).first()

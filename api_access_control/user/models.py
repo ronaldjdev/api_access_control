@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password, check_password
 
 from base.models import ModelBase
 
+from base.choices import ROLES
 
 # Create your models here.
 class UserManager(BaseUserManager):
@@ -67,7 +68,7 @@ class User (AbstractBaseUser, PermissionsMixin, ModelBase):
     last_name = models.CharField('Apellido',max_length=255)
     email = models.EmailField('Email',max_length=255, unique=True)
     password = models.CharField('Contraseña',max_length=255)
-
+    role = models.CharField('Rol', max_length=255, choices=ROLES, default=ROLES[0][0])
     is_active = models.BooleanField('Activo',default=True)
     is_staff = models.BooleanField('Administrador',default=False)
     is_superuser = models.BooleanField('Superusuario',default=False)

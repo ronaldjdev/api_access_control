@@ -57,6 +57,7 @@ class SignInSerializer(serializers.Serializer):
                 'name': user.name,
                 'last_name': user.last_name,
                 'email': user.email,
+                'role': user.role,
                 'employee': employee and {
                     'id': employee.id,
                     'type_id_card': employee.type_id_card,
@@ -66,7 +67,6 @@ class SignInSerializer(serializers.Serializer):
                     'marital_status': employee.marital_status,
                     'gender': employee.gender,
                     'rh': employee.rh,
-                    'role': employee.role,
                     'job': employee.job,
                     'date_birth': employee.date_birth
                 } or None,
