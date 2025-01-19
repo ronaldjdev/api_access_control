@@ -67,5 +67,5 @@ JOBS = [
 ROLES = [
     ('EMPLOYEE', 'Empleado'),
     ('ADMIN', 'Administrador'),
-    ('SUPERUSER', 'Superusuario'),|||||||||||||
+    ('SUPERUSER', 'Superusuario'),
 ]
