@@ -99,7 +99,6 @@ class TokenRefreshSerializer(serializers.Serializer):
 
     def validate(self, data):
         refresh_token = data.get('refresh')
-        print('refresh_token: ', refresh_token)
         if not refresh_token:
             raise serializers.ValidationError('El token de actualización es requerido.')
 
