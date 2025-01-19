@@ -2,6 +2,7 @@ import os
 from django.core.management.base import BaseCommand
 from user.models import User
 from decouple import config
+from base.choices import ROLES
 
 class Command(BaseCommand):
     help = 'Seed the database with test employees and a superuser'
@@ -63,6 +64,7 @@ class Command(BaseCommand):
                 id_card='111111',  # Cambia a un número entero
                 username='admin',
                 email='admin@example.com',
+                role=ROLES[1][0],
                 name='Admin',
                 last_name='User',
                 password='1111'

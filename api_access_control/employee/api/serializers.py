@@ -20,6 +20,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'id': instance.id,
             'id_card': instance.user.id_card,
             'type_id_card': instance.get_type_id_card_display(),
+            'user_id': instance.user.id,
+            'username': instance.user.username,
             'name': instance.user.name,
             'last_name': instance.user.last_name,
             'email': instance.user.email,
@@ -28,7 +30,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'marital_status': instance.get_marital_status_display(),
             'gender': instance.get_gender_display(),
             'rh': instance.rh,
-            'role': instance.role,
             'job': instance.job,
             'image': instance.image.url if instance.image else None,
             'date_birth': instance.date_birth

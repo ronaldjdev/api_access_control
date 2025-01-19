@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
             'created_at',
             'groups',
             'user_permissions',
+             "password",
             ]
 
     # Sobrescribe para manejar la contraseña
@@ -27,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.id_card = validated_data.get('id_card', instance.id_card)
         instance.name = validated_data.get('name', instance.name)
-        instance.last_name = validated_data.get('name', instance.last_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
         password = validated_data.get('password', None)
         if password:
@@ -43,20 +44,17 @@ class SignInSerializer(serializers.Serializer):
     def validate(self, data):
         id_card = data.get('id_card')
         password = data.get('password')
-        print("Datos recibidos:", id_card, password) 
         user = User.objects.filter(id_card=id_card).first()
         if user and user.check_password(password):
-            print("Credenciales correctas")
             refresh = RefreshToken.for_user(user)
             employee = Employee.objects.filter(user=user.id).first()
-            print("Empleado:", employee)
-            print("User:", user)
             employee_data = {
                 'id': user.id,
                 'id_card': user.id_card,
                 'name': user.name,
                 'last_name': user.last_name,
                 'email': user.email,
+                'role': user.role,
                 'employee': employee and {
                     'id': employee.id,
                     'type_id_card': employee.type_id_card,
@@ -66,7 +64,6 @@ class SignInSerializer(serializers.Serializer):
                     'marital_status': employee.marital_status,
                     'gender': employee.gender,
                     'rh': employee.rh,
-                    'role': employee.role,
                     'job': employee.job,
                     'date_birth': employee.date_birth
                 } or None,
@@ -102,6 +99,7 @@ class TokenRefreshSerializer(serializers.Serializer):
 
     def validate(self, data):
         refresh_token = data.get('refresh')
+        print('refresh_token: ', refresh_token)
         if not refresh_token:
             raise serializers.ValidationError('El token de actualización es requerido.')
 

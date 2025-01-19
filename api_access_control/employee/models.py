@@ -5,7 +5,7 @@ from cloudinary.models import CloudinaryField
 
 from user.models import User
 from base.models import ModelBase
-from .choices import ID_CHOICES, GENDER, MARITAL_STATUS, RH
+from base.choices import ID_CHOICES, GENDER, MARITAL_STATUS, RH, JOBS
 
 
 
@@ -27,9 +27,8 @@ class Employee(ModelBase):
     address = models.CharField('Dirección', max_length=255)
     marital_status = models.CharField("Estado Civil", max_length=255, choices=MARITAL_STATUS, default=MARITAL_STATUS[0][0])
     gender = models.CharField('Genero', max_length=255, choices=GENDER, default=GENDER[0][0])
-    rh = models.CharField('RH', max_length=255, choices=RH, default=RH[0][0])
-    role = models.CharField('Rol', max_length=255, default='employee')
-    job = models.CharField('Cargo', max_length=255, default='Servicio')
+    rh = models.CharField('Rh', max_length=255, choices=RH, default=RH[0][0])
+    job = models.CharField('Cargo', max_length=255, choices=JOBS, default=JOBS[0][0])
     date_birth = models.DateField('Fecha de nacimiento', null=True, blank=True)
 
     
