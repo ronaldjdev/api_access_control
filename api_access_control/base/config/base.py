@@ -123,7 +123,6 @@ REST_FRAMEWORK = {
     ],
     # Define las clases de permisos
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
         "rest_framework.permissions.IsAuthenticated",
     ],
 }
