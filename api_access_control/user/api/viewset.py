@@ -43,19 +43,14 @@ class UserViewSet(ModelViewSet):
     
     def partial_update(self, request, *args, **kwargs):
         """
-        Partially updates a user's information. Validates and saves the provided data, then
-        generates new access and refresh tokens for the updated user.
+        Actualiza parcialmente un usuario. Los campos que no se incluyan en la
+        solicitud no se modificarán. Solo los administradores pueden actualizar
+        usuarios.
 
-        Args:
-            request: The HTTP request containing the partial data for the user update.
-            *args: Additional positional arguments.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            Response: A response object containing the new access and refresh tokens, 
-            along with the updated user data and a status of 200 OK.
+        Devuelve un objeto con las claves "refresh", "access" y "data". "refresh"
+        y "access" contienen los tokens actualizados, y "data" contiene la información
+        actualizada del usuario.
         """
-
         instance = self.get_object()  # Obtiene el usuario
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)

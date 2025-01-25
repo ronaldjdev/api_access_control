@@ -15,27 +15,49 @@ class UserSerializer(serializers.ModelSerializer):
             'created_at',
             'groups',
             'user_permissions',
-             "password",
-            ]
+            'password',
+        ]
+        
 
-    # Sobrescribe para manejar la contraseña
     def create(self, validated_data):
+        """
+        Crea un nuevo usuario con los datos de validated_data. Se utiliza el 
+        método set_password para cifrar la contraseña. Luego, se guarda el 
+        usuario en la base de datos.
+        
+        :param validated_data: diccionario con la información del usuario a 
+        crear.
+        :return: el usuario recién creado.
+        """
         user = User(**validated_data)
-        user.set_password(validated_data['password'])
+        user.set_password(validated_data['password'])  # Usar el método set_password para cifrar
         user.save()
         return user
 
     def update(self, instance, validated_data):
-        instance.id_card = validated_data.get('id_card', instance.id_card)
-        instance.name = validated_data.get('name', instance.name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
+        """
+        Actualiza parcialmente un usuario. Solo se actualizan los campos que 
+        estén presentes en validated_data. Si se actualiza alguno de los campos 
+        esenciales (id_card, name, last_name, email), se valida su presencia.
+        
+        :param instance: el usuario a actualizar.
+        :param validated_data: diccionario con los campos a actualizar.
+        :return: el usuario actualizado.
+        """
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        
+        # Si hay una nueva contraseña, se actualiza
         password = validated_data.get('password', None)
         if password:
             instance.set_password(password)
         
         instance.save()
         return instance
+
+    def validate(self, attrs):
+
+        return attrs
 
 class SignInSerializer(serializers.Serializer):
     id_card = serializers.CharField(required=True)
