@@ -125,7 +125,7 @@ class RegisterAccess(ModelBase):
             # Horas extras diurnas y nocturnas
             print("diurnal_worked: ", diurnal_worked)
             print("nocturnal_worked: ", nocturnal_worked)
-            extra_diurnal = max(diurnal_worked - standard_work_hours, 0) - 1
+            extra_diurnal = max(diurnal_worked - standard_work_hours, 0) 
             print("extra_diurnal: ", extra_diurnal)
             self.extra_hours = custom_round(round(extra_diurnal, 2))
             self.extra_hours_night = custom_round(round(nocturnal_worked, 2))
