@@ -1,11 +1,13 @@
 from django.contrib import admin
 from import_export import resources
+from requests import head
 from tablib import Dataset
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 from .models import QrCode, RegisterAccess
 import holidays
 from datetime import datetime
+from rangefilter.filters import DateRangeFilter, DateTimeRangeFilter
 
 # class RegisterAccessResource(resources.ModelResource):
 #     user = Field(attribute="user", column_name="user", readonly=True)
@@ -68,12 +70,27 @@ class ExportRegisterAccessResource(resources.ModelResource):
         return ["Contrato", "Nombre", "Concepto", "C_Nombre", "Cantidad"]
 
     def export(self, queryset=None, *args, **kwargs):
-        # Crear un nuevo dataset con los encabezados
-        dataset = Dataset(headers=self.get_export_headers())
+        """
+        Exporta un conjunto de datos de registros registrados con encabezados específicos y campos calculados
+        Basado en el Queryset proporcionado. Si no se proporciona QuerySet, es predeterminado al administrador
+        Queryset. El conjunto de datos incluye detalles del contrato del usuario, nombre y calcula el concepto
+        y cantidad basada en horas adicionales trabajadas, teniendo en cuenta si el día es un domingo o vacaciones.
 
-        # Obtener el queryset si no está proporcionado
-        if not queryset:
-            queryset = self.get_queryset()
+        Args:
+            QuerySet (QuerySet, Opcional): un Django QuerySet de los objetos de registro
+            exportado. Predeterminado no a ninguno.
+            *Args: argumentos posicionales adicionales.
+            **Kwargs: argumentos de palabras clave adicionales.
+
+        Devoluciones:
+            Conjunto de datos: un objeto de conjunto de datos de TAbib que contiene los datos exportados con encabezados "contrato",
+            "Nombre", "Concepto", "C_nombre", "Cantidad".
+        """
+        dataset = Dataset(headers=self.get_export_headers())
+        if queryset.exists():
+            queryset = self._meta.model.objects.all()
+            print("queryset: ",queryset)
+
 
         # Iterar sobre cada registro de acceso
         for obj in queryset:
@@ -133,7 +150,6 @@ class ExportRegisterAccessResource(resources.ModelResource):
 
         return dataset
 
-
 class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class = ExportRegisterAccessResource
     list_display = (
@@ -145,6 +161,15 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         "extra_hours",
         "extra_hours_night",
     )
+    list_filter = (
+        ("user_entry", DateRangeFilter),  # Filtro por rango de fechas
+    )
+    
+    def get_queryset(self, request):
+        # Asegurarnos de que el queryset respeta los filtros aplicados
+        qs = super().get_queryset(request)
+        # Filtrar el queryset basado en los parámetros de la solicitud (opcional)
+        return qs
 
 
 class QrCodeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
