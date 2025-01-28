@@ -1,13 +1,12 @@
 from django.contrib import admin
 from import_export import resources
-from requests import head
 from tablib import Dataset
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 from .models import QrCode, RegisterAccess
 import holidays
 from datetime import datetime
-from rangefilter.filters import DateRangeFilter, DateTimeRangeFilter
+from rangefilter.filters import DateRangeFilter
 
 # class RegisterAccessResource(resources.ModelResource):
 #     user = Field(attribute="user", column_name="user", readonly=True)
