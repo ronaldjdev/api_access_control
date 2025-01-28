@@ -73,21 +73,28 @@ class RegisterAccess(ModelBase):
             work_duration = self.user_exit - self.user_entry
             total_hours = work_duration.total_seconds() / 3600  # Convertimos a horas
 
-            # Jornada laboral estándar (8 horas)
-            standard_work_hours = 8
+            weekday = self.user_entry.weekday()
+
+            # Jornada laboral estándar según el día de la semana
+            if weekday in range(0, 5):  # Lunes a viernes
+                standard_work_hours = 8
+                if self.user.employee:
+                    if self.user.employee.job in [
+                        "HOUSEKEEPING",
+                        "GARDENER",
+                        "MAINTENANCE",
+                    ]:
+                        total_hours -= 1.5
+                    elif self.user.employee.job == "GOLF_PRO":
+                        total_hours -= 2
+                    elif self.user.employee.job == "TENNIS_PRO":
+                        total_hours -= 1
+            elif weekday == 5:  # Sábado
+                standard_work_hours = 4
+            elif weekday == 6:  # Domingo
+                standard_work_hours = 7
 
             # Descuento por tiempo de almuerzo basado en el cargo
-            if self.user.employee:
-                if self.user.employee.job in [
-                    "HOUSEKEEPING",
-                    "GARDENER",
-                    "MAINTENANCE",
-                ]:
-                    total_hours -= 1.5
-                elif self.user.employee.job == "GOLF_PRO":
-                    total_hours -= 2
-                elif self.user.employee.job == "TENNIS_PRO":
-                    total_hours -= 1
 
             # Calculamos las horas trabajadas totales
             self.hours_worked = custom_round(round(total_hours, 2))
