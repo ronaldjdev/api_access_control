@@ -48,7 +48,10 @@ JOBS = [
     ('RECEPTION', 'Recepcionista'),
     ('TREASURY', 'Tesorería'),
     ('IT_MANAGER', 'Coordinador de Sistemas'),
-    ('MAINTENANCE', 'Mantenimiento'),
+    ('MAINTENANCE', 'Mantenimiento General'),
+    ('MAINTENANCE_TENNIS', 'Mantenimiento de Tenis'),
+    ('MAINTENANCE_GOLF', 'Mantenimiento de Golf'),
+    ('MAINTENANCE_POOL', 'Mantenimiento de Piscina'),
     ('GOLF_PRO', 'Profesional de Golf'),
     ('TENNIS_PRO', 'Profesional de Tenis'),
     ('LIFEGUARD', 'Salvavidas'),
@@ -61,7 +64,11 @@ JOBS = [
     ('ACCOUNTANT', 'Contador'),
     ('HR', 'Recursos Humanos'),
     ('MEMBER_RELATIONS', 'Relaciones con Miembros'),
+    ('COOK', 'Cocinero'),
+    ('HEAD_CHEF', 'Jefe de Cocina'),
+    ('SERVICE_ADMIN', 'Administración de Servicios'),
 ]
+
 
 # Choices para ROLES
 ROLES = [
