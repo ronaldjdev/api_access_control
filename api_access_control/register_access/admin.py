@@ -4,7 +4,8 @@ from tablib import Dataset
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 from .models import QrCode, RegisterAccess
-
+import holidays
+from datetime import datetime
 
 # class RegisterAccessResource(resources.ModelResource):
 #     user = Field(attribute="user", column_name="user", readonly=True)
@@ -12,6 +13,13 @@ from .models import QrCode, RegisterAccess
 #     class Meta:
 #         model = RegisterAccess
 #         exclude = ("user",)
+
+colombia_holidays = holidays.Colombia(years=datetime.now().year)
+
+
+def is_sunday_or_holiday(date):
+    # Verificar si la fecha es un domingo o un festivo
+    return date.weekday() == 6 or date in colombia_holidays
 
 
 class QrCodeResource(resources.ModelResource):
@@ -33,12 +41,18 @@ class ExportRegisterAccessResource(resources.ModelResource):
         fields = ()
 
     def dehydrate_concepto(self, obj):
+        # Verificar si es domingo o festivo
+        if is_sunday_or_holiday(obj.user_entry):
+            if obj.extra_hours > 0:
+                return "DV10"  # Horas extras dominicales y festivas
+            elif obj.extra_hours_night > 0:
+                return "DV11"  # Horas extras nocturnas dominicales y festivas
+
         # Mapear las horas extras a los conceptos correspondientes
         if obj.extra_hours > 0:
             return "DV08"  # Horas extras diurnas
         elif obj.extra_hours_night > 0:
             return "DV09"  # Horas extras nocturnas
-        # Puedes agregar más condiciones para otros conceptos si es necesario
         return ""
 
     def dehydrate_cantidad(self, obj):
@@ -51,7 +65,7 @@ class ExportRegisterAccessResource(resources.ModelResource):
         return 0
 
     def get_export_headers(self):
-        return ["Contrato", "Nombre", "Concepto",  "Cantidad"]
+        return ["Contrato", "Nombre", "Concepto", "C_Nombre", "Cantidad"]
 
     def export(self, queryset=None, *args, **kwargs):
         # Crear un nuevo dataset con los encabezados
@@ -65,26 +79,60 @@ class ExportRegisterAccessResource(resources.ModelResource):
         for obj in queryset:
             # Datos base para todas las filas de este registro
             contrato = obj.user.id_card
-            nombre = f"{obj.user.name} {obj.user.last_name}"
+            nombre = f"{obj.user.name.upper()} {obj.user.last_name.upper()}"
 
             # Generar filas según las horas extras
-            if obj.extra_hours > 0:
-                dataset.append([
-                    contrato,
-                    nombre,
-                    "DV08",  # Concepto para horas extras diurnas
-                    obj.extra_hours
-                ])
+            # Primero verificamos si es domingo o festivo
+            if is_sunday_or_holiday(obj.user_entry):
+                # Si es domingo o festivo, asignamos los conceptos correspondientes
+                if obj.extra_hours > 0:
+                    dataset.append(
+                        [
+                            contrato,
+                            nombre,
+                            "DV10",
+                            "DV10",
+                            obj.extra_hours,
+                        ]
+                    )
 
-            if obj.extra_hours_night > 0:
-                dataset.append([
-                    contrato,
-                    nombre,
-                    "DV09",  # Concepto para horas extras nocturnas
-                    obj.extra_hours_night
-                ])
+                if obj.extra_hours_night > 0:
+                    dataset.append(
+                        [
+                            contrato,
+                            nombre,
+                            "DV11",
+                            "DV11",
+                            obj.extra_hours_night,
+                        ]
+                    )
+            else:
+                # Si no es domingo ni festivo, asignamos los conceptos para horas extras diurnas y nocturnas
+                if obj.extra_hours > 0:
+                    dataset.append(
+                        [
+                            contrato,
+                            nombre,
+                            "DV08",
+                            "DV08",
+                            obj.extra_hours,
+                        ]
+                    )
+
+                if obj.extra_hours_night > 0:
+                    dataset.append(
+                        [
+                            contrato,
+                            nombre,
+                            "DV09",
+                            "DV09",
+                            obj.extra_hours_night,
+                        ]
+                    )
+            # Agregar concepto para horas extras dominicales y festivas
 
         return dataset
+
 
 class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class = ExportRegisterAccessResource
