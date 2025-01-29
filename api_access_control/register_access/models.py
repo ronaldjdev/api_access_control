@@ -3,6 +3,7 @@ from base.models import ModelBase
 from user.models import User
 from datetime import timedelta
 from math import floor, ceil
+import holidays
 
 # Create your models here.
 
@@ -68,15 +69,32 @@ class RegisterAccess(ModelBase):
         app_label = "register_access"
 
     def save(self, *args, **kwargs):
+        """
+        Sobreescribe el método save para calcular las horas trabajadas y extras.
+        Se consideran las siguientes reglas:
+        - Si el usuario tiene un cargo de HOUSEKEEPING, GARDENER o MAINTENANCE, se descontan 1.5 horas.
+        - Si el usuario tiene un cargo de GOLF_PRO, se descontan 2 horas.
+        - Si el usuario tiene un cargo de TENNIS_PRO, se descontan 1 hora.
+        - Se consideran 7 horas de trabajo estándar para días festivos y fines de semana.
+        - Se consideran 8 horas de trabajo estándar para los demás días.
+        - Las horas extras diurnas se calculan entre las 7 AM y las 9 PM.
+        - Las horas extras nocturnas se calculan entre las 9 PM y las 7 AM.
+        """
         if self.user_entry and self.user_exit:
             # Duración total en horas entre entrada y salida
             work_duration = self.user_exit - self.user_entry
             total_hours = work_duration.total_seconds() / 3600  # Convertimos a horas
 
+            colombian_holidays = holidays.Colombia()
+            is_holiday = self.user_entry.date() in colombian_holidays
             weekday = self.user_entry.weekday()
 
             # Jornada laboral estándar según el día de la semana
-            if weekday in range(0, 5):  # Lunes a viernes
+            if is_holiday or weekday == 6:
+                standard_work_hours = 7
+            elif weekday == 5:  # Sábado
+                standard_work_hours = 4
+            else:
                 standard_work_hours = 8
                 if self.user.employee:
                     if self.user.employee.job in [
@@ -89,10 +107,6 @@ class RegisterAccess(ModelBase):
                         total_hours -= 2
                     elif self.user.employee.job == "TENNIS_PRO":
                         total_hours -= 1
-            elif weekday == 5:  # Sábado
-                standard_work_hours = 4
-            elif weekday == 6:  # Domingo
-                standard_work_hours = 7
 
             # Descuento por tiempo de almuerzo basado en el cargo
 
@@ -130,10 +144,7 @@ class RegisterAccess(ModelBase):
                 ).total_seconds() / 3600
 
             # Horas extras diurnas y nocturnas
-            print("diurnal_worked: ", diurnal_worked)
-            print("nocturnal_worked: ", nocturnal_worked)
             extra_diurnal = max(diurnal_worked - standard_work_hours, 0) 
-            print("extra_diurnal: ", extra_diurnal)
             self.extra_hours = custom_round(round(extra_diurnal, 2))
             self.extra_hours_night = custom_round(round(nocturnal_worked, 2))
 
