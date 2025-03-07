@@ -34,14 +34,6 @@ def is_sunday_or_holiday(date):
     return date.weekday() == 6 or date in colombia_holidays
 
 
-class QrCodeResource(resources.ModelResource):
-    user = Field(attribute="user", column_name="user", readonly=True)
-
-    class Meta:
-        model = QrCode
-        exclude = ("user",)
-
-
 class ExportRegisterAccessResource(resources.ModelResource):
     contrato = Field(column_name="Contrato", attribute="user__id_card")
     nombre = Field(column_name="Nombre", attribute="user__name")
@@ -142,18 +134,23 @@ class ExportRegisterAccessResource(resources.ModelResource):
                 if obj.extra_hours > 0:
                     grouped_data[(contrato, nombre, "DV10", "DV10")] += obj.extra_hours
                 if obj.extra_hours_night > 0:
-                    grouped_data[(contrato, nombre, "DV11", "DV11")] += obj.extra_hours_night
+                    grouped_data[
+                        (contrato, nombre, "DV11", "DV11")
+                    ] += obj.extra_hours_night
             else:
                 if obj.extra_hours > 0:
                     grouped_data[(contrato, nombre, "DV08", "DV08")] += obj.extra_hours
                 if obj.extra_hours_night > 0:
-                    grouped_data[(contrato, nombre, "DV09", "DV09")] += obj.extra_hours_night
+                    grouped_data[
+                        (contrato, nombre, "DV09", "DV09")
+                    ] += obj.extra_hours_night
 
         # Agregar los datos agrupados al dataset
         for (contrato, nombre, concepto, c_nombre), cantidad in grouped_data.items():
             dataset.append([contrato, nombre, concepto, c_nombre, round(cantidad, 2)])
 
         return dataset
+
 
 class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class = ExportRegisterAccessResource
@@ -166,15 +163,42 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         "extra_hours",
         "extra_hours_night",
     )
-    list_filter = (
-        ("user_entry", DateRangeFilter),  # Filtro por rango de fechas
-    )
-    
+    search_fields = [
+        "user__name",
+        "user__id_card",
+        "type_access",
+        "user_entry",
+        "user_exit",
+    ]
+    list_filter = (("user_entry", DateRangeFilter),)  # Filtro por rango de fechas
+
     def get_queryset(self, request):
         # Asegurarnos de que el queryset respeta los filtros aplicados
         qs = super().get_queryset(request)
         # Filtrar el queryset basado en los parámetros de la solicitud (opcional)
         return qs
+    
+    def get_search_results(self, request, queryset, search_term):
+        # Primero, obtenemos los resultados de la búsqueda normal
+        queryset, use_distinct = super().get_search_results(
+            request, queryset, search_term
+        )
+
+        # Si el término de búsqueda coincide con la descripción legible, agregamos esos resultados
+        if search_term.lower() in ["ingreso", "in"]:
+            queryset |= self.model.objects.filter(type_access="IN")
+        elif search_term.lower() in ["salida", "out"]:
+            queryset |= self.model.objects.filter(type_access="OUT")
+
+        return queryset, use_distinct
+
+
+class QrCodeResource(resources.ModelResource):
+    user = Field(attribute="user", column_name="user", readonly=True)
+
+    class Meta:
+        model = QrCode
+        exclude = ("user",)
 
 
 class QrCodeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -194,12 +218,12 @@ class QrCodeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     get_user_id_card.short_description = "Identificación"
 
     def get_user_name(self, obj):
-        return obj.user.name
+        return obj.user.name.upper()
 
     get_user_name.short_description = "Nombre"
 
     def get_user_last_name(self, obj):
-        return obj.user.last_name
+        return obj.user.last_name.upper()
 
     get_user_last_name.short_description = "Apellido"
 

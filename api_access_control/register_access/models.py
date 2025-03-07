@@ -54,14 +54,8 @@ class RegisterAccess(ModelBase):
     extra_hours_night = models.DecimalField(
         "H. ext nocturnas", max_digits=5, decimal_places=2, default=0.00
     )
-    remark = models.TextField("Observaciones", null=True, blank=True)
-    qr_data = models.ForeignKey(
-        QrCode,
-        on_delete=models.CASCADE,
-        verbose_name="Codigo QR",
-        null=True,
-        blank=True,
-    )
+    remark = models.JSONField(default=dict, blank=True)
+    qr_data = models.TextField("Datos QR", null=True, blank=True)
 
     class Meta:
         verbose_name = "Registro de acceso"
@@ -144,7 +138,7 @@ class RegisterAccess(ModelBase):
                 ).total_seconds() / 3600
 
             # Horas extras diurnas y nocturnas
-            extra_diurnal = max(diurnal_worked - standard_work_hours, 0) 
+            extra_diurnal = max(diurnal_worked - standard_work_hours, 0)
             self.extra_hours = custom_round(round(extra_diurnal, 2))
             self.extra_hours_night = custom_round(round(nocturnal_worked, 2))
 
