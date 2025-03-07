@@ -10,8 +10,10 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .models import RegisterAccess
 from user.models import User
 from .utils.qr_generator import generate_dynamic_qr, generate_dynamic_qr_view
+from pathlib import Path
 
-
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 def decode_token(token):
     """
     Decodifica un token y devuelve su payload.
