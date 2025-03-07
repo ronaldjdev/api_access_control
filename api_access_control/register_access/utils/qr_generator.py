@@ -2,7 +2,7 @@ from io import BytesIO
 import pyqrcode
 from django.http import HttpResponse
 
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 from user.models import User
 
 def generate_dynamic_qr(user_id):
@@ -23,7 +23,7 @@ def generate_dynamic_qr(user_id):
     except User.DoesNotExist:
         raise ValueError("Usuario no encontrado")
 
-    token = str(RefreshToken.for_user(user))  # Genera el token para el usuario
+    token = str(AccessToken.for_user(user))  # Genera el token para el usuario
     
     # Crea el código QR en memoria (usando un buffer de BytesIO)
     qr = pyqrcode.create(token, error='L')
@@ -53,7 +53,7 @@ def generate_dynamic_qr_view(user_id):
     except User.DoesNotExist:
         raise ValueError("Usuario no encontrado")
 
-    token = str(RefreshToken.for_user(user))  
+    token = str(AccessToken.for_user(user))  
     qr = pyqrcode.create(token, error='L')
     
     # Crea un buffer de memoria para almacenar la imagen

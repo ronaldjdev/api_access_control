@@ -54,14 +54,8 @@ class RegisterAccess(ModelBase):
     extra_hours_night = models.DecimalField(
         "H. ext nocturnas", max_digits=5, decimal_places=2, default=0.00
     )
-    remark = models.TextField("Observaciones", null=True, blank=True)
-    qr_data = models.ForeignKey(
-        QrCode,
-        on_delete=models.CASCADE,
-        verbose_name="Codigo QR",
-        null=True,
-        blank=True,
-    )
+    remark = models.JSONField(default=dict, blank=True)
+    qr_data = models.TextField("Datos QR", null=True, blank=True)
 
     class Meta:
         verbose_name = "Registro de acceso"
