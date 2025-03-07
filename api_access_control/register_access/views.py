@@ -89,6 +89,7 @@ def verify_qr(request):
                     return JsonResponse(
                         {
                             "status": "success",
+                            "name": user.name + " " + user.last_name,
                             "type_access": "OUT",
                             "exit_time": register_type.user_exit.isoformat(),
                             "message": "Salida confirmada",
@@ -108,6 +109,7 @@ def verify_qr(request):
                 return JsonResponse(
                     {
                         "status": "success",
+                        "name": user.name + " " + user.last_name,
                         "type_access": type_access,
                         "entry_time": new_register.user_entry.isoformat(),
                         "message": "Acceso confirmado",
