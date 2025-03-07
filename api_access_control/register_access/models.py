@@ -144,7 +144,7 @@ class RegisterAccess(ModelBase):
                 ).total_seconds() / 3600
 
             # Horas extras diurnas y nocturnas
-            extra_diurnal = max(diurnal_worked - standard_work_hours, 0) 
+            extra_diurnal = max(diurnal_worked - standard_work_hours, 0)
             self.extra_hours = custom_round(round(extra_diurnal, 2))
             self.extra_hours_night = custom_round(round(nocturnal_worked, 2))
 
