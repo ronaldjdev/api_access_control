@@ -142,15 +142,8 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         """
         updated_count = 0
         for register in queryset:
-            print(f"📌 Registro ID: {register.id}")
-            print(f"⏰ Entrada: {register.user_entry}, Salida: {register.user_exit}")
-            print(f"🕒 Antes -> Horas trabajadas: {register.hours_worked}, Extras diurnas: {register.extra_hours}, Extras nocturnas: {register.extra_hours_night}")
-
             # Recalcular las horas y horas extras
             register.save()  # Recalcula las horas
-
-            print(f"✅ Después -> Horas trabajadas: {register.hours_worked}, Extras diurnas: {register.extra_hours}, Extras nocturnas: {register.extra_hours_night}")
-
             updated_count += 1
 
         success_message = f"{updated_count} registros actualizados con éxito."

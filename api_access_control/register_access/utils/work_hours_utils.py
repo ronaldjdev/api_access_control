@@ -72,27 +72,21 @@ def calculate_night_extra_hours(user_entry, user_exit, tz=pytz.timezone('America
     - nocturnal_worked: cantidad de horas trabajadas en el periodo nocturno (en horas).
     """
     
-    # Asegurarse de que las fechas estén en la zona horaria correcta
-    user_entry = user_entry.astimezone(tz)  # Convertir la entrada a la zona horaria local
-    user_exit = user_exit.astimezone(tz)  # Convertir la salida a la zona horaria local
+    # Convertir la salida a la zona horaria local
+    user_entry = user_entry.astimezone(tz)  
+    user_exit = user_exit.astimezone(tz)  
 
-    # Mostrar las fechas convertidas para depuración
-    print(f"⏰ Entrada ajustada: {user_entry}")
-    print(f"⏰ Salida ajustada: {user_exit}")
-    
+
     # Definir la hora de inicio del trabajo nocturno: 21:00 (9 PM)
     night_extra_start = user_entry.replace(hour=21, minute=0, second=0, microsecond=0)
     
     # Definir la hora de fin del trabajo nocturno: 06:59 del día siguiente (6:59 AM)
     night_extra_end = user_entry.replace(hour=6, minute=59, second=59, microsecond=999999) + timedelta(days=1)
 
-    # Mostrar los límites de trabajo nocturno para depuración
-    print(f"🕘 Rango nocturno: {night_extra_start} a {night_extra_end}")
-    
-    # Inicializar la variable de horas nocturnas trabajadas
+   
     nocturnal_worked = 0
     
-    # Verificar si la hora de salida es posterior a las 21:00 (inicio del trabajo nocturno)
+    
     if user_exit > night_extra_start:
         # Calcular el periodo de superposición entre la entrada/salida y el rango nocturno
         start_overlap = max(user_entry, night_extra_start)  # Determinar la hora de inicio del solapamiento
@@ -103,9 +97,4 @@ def calculate_night_extra_hours(user_entry, user_exit, tz=pytz.timezone('America
             # Calcular las horas nocturnas trabajadas en el solapamiento y convertirlo a horas
             nocturnal_worked = (end_overlap - start_overlap).total_seconds() / 3600
             
-        # Mostrar el solapamiento y las horas nocturnas trabajadas para depuración
-        print(f"🔄 Solapamiento: {start_overlap} a {end_overlap}")
-        print(f"⏳ Horas trabajadas en el período nocturno: {nocturnal_worked} horas")
-
-    # Retornar las horas nocturnas trabajadas
     return nocturnal_worked
