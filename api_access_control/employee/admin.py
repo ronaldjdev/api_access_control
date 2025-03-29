@@ -17,7 +17,7 @@ class EmployeesAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         "user",
         "is_active",
     )
-    search_fields = ["user", "is_active"]
+    search_fields = ["user__name","user__id_card","user__email","user__last_name", "is_active"]
     actions = ["export_default_data"]
     def export_default_data(self, request, queryset):
         """

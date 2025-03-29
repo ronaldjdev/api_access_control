@@ -11,6 +11,8 @@ import holidays
 from rangefilter.filters import DateRangeFilter
 from collections import defaultdict
 from .models import RegisterAccess
+from django.urls import reverse
+
 
 colombia_holidays = holidays.Colombia(years=datetime.now().year)
 
@@ -104,7 +106,7 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     ]
     list_filter = (("user_entry", DateRangeFilter),)
 
-    actions = ["export_default_data", "export_custom_data"]
+    actions = ["export_default_data", "export_custom_data", "recalculate_hours"]
     
 
     def export_custom_data(self, request, queryset):
@@ -113,8 +115,9 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         """
         resource = CustomRegisterAccessResource()
         dataset = resource.export(queryset)
+        file_name = f'register_access_zeus_{datetime.now().strftime("%Y-%m-%d")}.xlsx'
         response = HttpResponse(dataset.xlsx, content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = 'attachment; filename="register_access_custom.xlsx"'
+        response["Content-Disposition"] = f'attachment; filename="{file_name}"'
         return response
 
     export_custom_data.short_description = "Exportar datos personalizados"
@@ -123,13 +126,46 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         """
         Exportar la data por defecto del modelo RegisterAccess.
         """
+        file_name = f'register_access_data_{datetime.now().strftime("%Y-%m-%d")}.xlsx'
         resource = DefaultRegisterAccessResource()
         dataset = resource.export(queryset)
         response = HttpResponse(dataset.xlsx, content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = 'attachment; filename="register_access_default.xlsx"'
+        response["Content-Disposition"] = f'attachment; filename="{file_name}"'
         return response
 
     export_default_data.short_description = "Exportar datos por defecto"
+
+    def recalculate_hours(self, request, queryset):
+        """
+        Acción para recalcular las horas trabajadas y las horas extras
+        de todos los registros seleccionados.
+        """
+        updated_count = 0
+        for register in queryset:
+            print(f"📌 Registro ID: {register.id}")
+            print(f"⏰ Entrada: {register.user_entry}, Salida: {register.user_exit}")
+            print(f"🕒 Antes -> Horas trabajadas: {register.hours_worked}, Extras diurnas: {register.extra_hours}, Extras nocturnas: {register.extra_hours_night}")
+
+            # Recalcular las horas y horas extras
+            register.save()  # Recalcula las horas
+
+            print(f"✅ Después -> Horas trabajadas: {register.hours_worked}, Extras diurnas: {register.extra_hours}, Extras nocturnas: {register.extra_hours_night}")
+
+            updated_count += 1
+
+        success_message = f"{updated_count} registros actualizados con éxito."
+
+        # Código JavaScript para alert y redirección
+        script = f"""
+        <script type="text/javascript">
+            alert("{success_message}");
+            window.location.href = "{reverse('admin:{0}_{1}_changelist'.format(self.model._meta.app_label, self.model._meta.model_name))}";
+        </script>
+        """
+
+        return HttpResponse(script)
+
+    recalculate_hours.short_description = "Recalcular horas y horas extras"
 
 
 admin.site.register(RegisterAccess, ExportRegisterAccessAdmin)
