@@ -37,13 +37,13 @@ class RegisterAccess(ModelBase):
     user_entry = models.DateTimeField("Ingreso", null=True, blank=True)
     user_exit = models.DateTimeField("Salida", null=True, blank=True)
     hours_worked = models.DecimalField(
-        "H. trabajadas", max_digits=5, decimal_places=2, blank=True
+        "H. trabajadas", max_digits=5, decimal_places=2, blank=True, default=0
     )
     extra_hours = models.DecimalField(
-        "H. ext diurnas", max_digits=5, decimal_places=2, blank=True
+        "H. ext diurnas", max_digits=5, decimal_places=2, blank=True, default=0
     )
     extra_hours_night = models.DecimalField(
-        "H. ext nocturnas", max_digits=5, decimal_places=2, blank=True
+        "H. ext nocturnas", max_digits=5, decimal_places=2, blank=True, default=0
     )
     remark = models.JSONField(default=dict, blank=True)
     qr_data = models.TextField("Datos QR", null=True, blank=True)
@@ -66,11 +66,30 @@ class RegisterAccess(ModelBase):
         # Definir horas estándar según el día
         standard_work_hours = 8
         if is_holiday:
-            standard_work_hours = 7
-        elif self.user_entry.weekday() == 5:  # Sábado
-            standard_work_hours = 4
-            if job in ["HOUSEKEEPING", "GARDENER", "MAINTENANCE"]:
+            if job in [
+                "HOUSEKEEPING",
+                "GARDENER",
+                "MAINTENANCE",
+                "MAINTENANCE_GOLF",
+                "MAINTENANCE_POOL",
+                "MAINTENANCE_TENNIS",
+                "CHEF",
+                "ASSISTANT_COOK",
+            ]:
                 standard_work_hours = 8
+            else:
+                standard_work_hours = 7
+        elif self.user_entry.weekday() == 5:  # Sábado
+            if job in [
+                "HOUSEKEEPING",
+                "GARDENER",
+                "MAINTENANCE",
+                "CHEF",
+                "ASSISTANT_COOK",
+            ]:
+                standard_work_hours = 8
+            else:
+                standard_work_hours = 4
 
         # Calcular horas trabajadas
         total_hours = calculate_total_hours(self.user_entry, self.user_exit, job)
@@ -88,13 +107,33 @@ class RegisterAccess(ModelBase):
 
     def save(self, *args, **kwargs):
         """Se asegura de calcular horas solo si hay entrada y salida, evitando bucles infinitos."""
+        print("Guardando instancia de RegisterAccess")
+        print(
+            f"Valores actuales: user_entry={self.user_entry}, user_exit={self.user_exit}, type_access={self.type_access}"
+        )
+
         if self.user_entry and self.user_exit:
+            print("Ambos valores de entrada y salida están presentes")
             if self.type_access == "IN":
+                print("Cambiando type_access de IN a OUT")
                 self.type_access = "OUT"
+
+            print("Calculando horas trabajadas")
             self.calculate_hours()
-            # Guardar sin llamar nuevamente a calculate_hours() para evitar recursión infinita
+
+            print("Guardando con update_fields")
             super().save(
-                update_fields=["hours_worked", "extra_hours", "extra_hours_night"]
+                update_fields=[
+                    "hours_worked",
+                    "extra_hours",
+                    "extra_hours_night",
+                    "type_access",
+                    "user_exit",
+                    "user_entry",
+                ]
             )
         else:
+            print("Faltan valores de entrada o salida, guardando normalmente")
             super().save(*args, **kwargs)
+
+        print("Guardado completado")
