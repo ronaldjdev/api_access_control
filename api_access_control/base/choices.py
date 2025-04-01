@@ -62,7 +62,6 @@ JOBS = [
     ('MEMBER_RELATIONS', 'Relaciones con Miembros'),
     ('RECEPTION', 'Recepcionista'),
     ('SECURITY', 'Seguridad'),
-    ('SERVICE_ADMIN', 'Administración de Servicios'),
     ('SERVICE_COORDINATOR', 'Coordinador de Servicios'),
     ('SUBDIRECTOR', 'Subdirector'),
     ('TENNNIS_PRO', 'Profesional de Tenis'),

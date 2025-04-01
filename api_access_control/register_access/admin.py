@@ -6,13 +6,13 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 from tablib import Dataset
-from datetime import datetime
+from datetime import datetime, timedelta
 import holidays
 from rangefilter.filters import DateRangeFilter
 from collections import defaultdict
 from .models import RegisterAccess
 from django.urls import reverse
-
+import json
 
 colombia_holidays = holidays.Colombia(years=datetime.now().year)
 
@@ -96,6 +96,8 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         "hours_worked",
         "extra_hours",
         "extra_hours_night",
+        "entry_observation",
+        "exit_observation",
     )
     search_fields = [
         "user__name",
@@ -108,6 +110,27 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
     actions = ["export_default_data", "export_custom_data", "recalculate_hours"]
     
+    def get_remark_data(self, obj):
+        """Devuelve el JSON del campo remark como diccionario."""
+        if isinstance(obj.remark, dict):
+            return obj.remark  # Ya es un diccionario
+        try:
+            return json.loads(obj.remark) if obj.remark else {}
+        except json.JSONDecodeError:
+            return {}
+
+    def entry_observation(self, obj):
+        """Extrae entry_observation del campo JSON remark."""
+        remark_data = self.get_remark_data(obj)
+        return remark_data.get("entry_observation", "-")
+
+    def exit_observation(self, obj):
+        """Extrae exit_observation del campo JSON remark."""
+        remark_data = self.get_remark_data(obj)
+        return remark_data.get("exit_observation", "-")
+
+    entry_observation.short_description = "Observación Entrada"
+    exit_observation.short_description = "Observación Salida"
 
     def export_custom_data(self, request, queryset):
         """
@@ -142,8 +165,18 @@ class ExportRegisterAccessAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         """
         updated_count = 0
         for register in queryset:
+
+            if register.remark.get("exit_observation") == "" or register.remark == {}  and register.hours_worked > 8 :
+                if register.user_entry:
+                    register.user_exit = register.user_entry + timedelta (hours=8)
+
             # Recalcular las horas y horas extras
-            register.save()  # Recalcula las horas
+            if not register.user_exit:
+                register.hours_worked = 0
+                register.extra_hours = 0
+                register.extra_hours_night = 0
+                register.save()
+            register.save()  # Recalcula las horas 
             updated_count += 1
 
         success_message = f"{updated_count} registros actualizados con éxito."

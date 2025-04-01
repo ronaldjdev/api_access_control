@@ -14,6 +14,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 def decode_token(token):
     """
     Decodifica un token y devuelve su payload.
@@ -35,6 +37,7 @@ def decode_token(token):
     except TokenError as e:
         # Lanza la excepción para que la maneje el except en verify_qr
         raise InvalidToken("Token inválido o expirado") from e
+
 
 @csrf_exempt
 def verify_qr(request):
@@ -61,12 +64,12 @@ def verify_qr(request):
     if request.method == "POST":
         data = json.loads(request.body)
         qr_data = data.get("qr_data")
-        print("qr_data:", qr_data)
-        remark = data.get("remark", "")
-        print("remark:", remark)
+        remark = data.get("remark")
 
         if not qr_data:
-            return JsonResponse({"status": "error", "message": "QR no proporcionado"}, status=400)
+            return JsonResponse(
+                {"status": "error", "message": "QR no proporcionado"}, status=400
+            )
 
         if qr_data:
             try:
@@ -76,14 +79,22 @@ def verify_qr(request):
                 user = User.objects.get(id=user_id)
 
                 # Obtener el primer registro con tipo de acceso "IN"
-                register_type = RegisterAccess.objects.filter(user=user, type_access="IN").first()
+                register_type = RegisterAccess.objects.filter(
+                    user=user, type_access="IN"
+                ).first()
 
                 if register_type:
                     # Si el primer registro "IN" existe, marcar la salida
                     register_type.user_exit = timezone.now()
                     register_type.type_access = "OUT"
-                    new_remark = {**register_type.remark, "exit_observation": remark or ""}  # Asegúrate de que remark no sea None
-                    register_type.remark = new_remark
+                    remark_data = register_type.remark or {}
+
+                    # Actualizar el diccionario con la observación de salida
+                    remark_data["exit_observation"] = remark or "Sin Observacion"
+                    print("Observacion: ", remark_data)
+
+                    # Asignar el diccionario actualizado de nuevo a remark
+                    register_type.remark = remark_data
                     register_type.save()
 
                     return JsonResponse(
@@ -118,13 +129,20 @@ def verify_qr(request):
 
             except InvalidToken as e:
                 print("Error al decodificar QR:", e)
-                return JsonResponse({"status": "error", "message": "QR inválido"}, status=400)
+                return JsonResponse(
+                    {"status": "error", "message": "QR inválido"}, status=400
+                )
             except TokenError as e:
                 return JsonResponse({"status": "error", "message": str(e)}, status=400)
             except User.DoesNotExist:
-                return JsonResponse({"status": "error", "message": "Usuario no encontrado"}, status=404)
+                return JsonResponse(
+                    {"status": "error", "message": "Usuario no encontrado"}, status=404
+                )
 
-    return JsonResponse({"status": "error", "message": "Método no permitido"}, status=405)
+    return JsonResponse(
+        {"status": "error", "message": "Método no permitido"}, status=405
+    )
+
 
 def generate_qr_from_employee(request):
     """
